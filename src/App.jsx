@@ -7,6 +7,7 @@ function App() {
 	return (
 		<>
 			<Routes>
+				<Route path="/Frizerie-Andrei-Vizite/" element=<Home /> />
 				<Route path="/" element=<Home /> />
 			</Routes>
 		</>
