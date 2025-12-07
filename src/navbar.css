@@ -1,0 +1,60 @@
+.navbar {
+	display: inline-flex;
+	width: 100%;
+	height: max-content;
+	flex-direction: row;
+	align-items: center;
+	z-index: 10;
+}
+
+#logo {
+	height: 55px;
+	align-self: center;
+	/*padding-left: 50px;*/
+	padding-right: 50px;
+	padding-top: 20px;
+	user-select: none;
+}
+
+.links a {
+	text-decoration: none;
+	flex-direction: column;
+	width: max-content;
+	opacity: 0.7;
+	transition: all linear 0.2s;
+}
+
+.links a:hover {
+	opacity: 1;
+}
+
+.links {
+	display: inline-flex;
+	width: 50ch;
+	justify-content: space-between;
+	user-select: none;
+}
+
+.meniu-cont {
+	margin-left: auto;
+	cursor: pointer;
+	user-select: none;
+}
+
+@media (max-width: 1020px) {
+	.links {
+		display: none;
+	}
+
+	.meniu-cont {
+		display: none;
+	}
+
+	.navbar {
+		justify-content: center;
+	}
+
+	#logo {
+		padding: 20px 0;
+	}
+}
