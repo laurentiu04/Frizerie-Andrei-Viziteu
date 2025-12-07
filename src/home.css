@@ -50,10 +50,10 @@ h1 {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%, -50%) rotate(4deg) scale(1.5);
-	width: auto;
-	height: 100%;
-	object-fit: contain;
+	transform: translate(-50%, -50%) rotate(4deg) scale(1);
+	width: 105%;
+	min-height: 110vh;
+	object-fit: cover;
 	z-index: -1;
 	filter: blur(1vh);
 }
@@ -73,13 +73,15 @@ h1 {
 	backdrop-filter: grain(10%);
 }
 
-@media (max-width: 1020px) {
+@media screen and (max-width: 1020px) {
 	.home-container {
 		align-items: center;
 	}
 
 	h1 {
 		text-align: center;
+		font-size: calc(10px + 5vw + 1.5vh);
+		line-height: calc(10px + 5vw + 1.5vh);
 	}
 
 	body {
