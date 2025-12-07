@@ -10,7 +10,9 @@ function Home() {
 		<>
 			<Navbar />
 			<div className="home-container">
-				<img id="fundal" src={Fundal} />
+				<div className="fundal-mask">
+					<img id="fundal" src={Fundal} />
+				</div>
 				<span id="overlay"></span>
 				<h1>
 					<b>BARBER</b>

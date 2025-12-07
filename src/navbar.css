@@ -56,5 +56,6 @@
 
 	#logo {
 		padding: 20px 0;
+		height: calc(35px + 2vw + 0.5vh);
 	}
 }

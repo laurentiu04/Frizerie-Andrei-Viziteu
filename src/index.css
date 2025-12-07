@@ -9,7 +9,7 @@ body {
 	--window-padding: 70px;
 	padding-left: var(--window-padding);
 	padding-right: var(--window-padding);
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 header {
