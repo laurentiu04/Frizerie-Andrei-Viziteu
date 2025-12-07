@@ -21,17 +21,16 @@ h1 {
 .button {
 	display: flex;
 	flex-grow: 1;
-	/*margin: 5em 0px 5em 0px;*/
-	justify-items: center;
+	/*justify-items: center;*/
 	align-items: center;
 	color: black;
-	justify-self: start;
 }
 
 .button p {
 	font-weight: 300;
 	background-color: white;
 	padding: 15px 20px;
+	margin: 0;
 	border-radius: 17px;
 	font-size: 20px;
 	opacity: 0.8;
@@ -40,6 +39,7 @@ h1 {
 }
 
 .button p:hover {
+	display: flex;
 	cursor: pointer;
 	user-select: none;
 	opacity: 1;
@@ -84,7 +84,15 @@ h1 {
 		line-height: calc(10px + 5vw + 1.5vh);
 	}
 
-	body {
-		scroll-behavior: unset;
+	h1:nth-of-type(2) {
+		justify-content: center;
+	}
+
+	h1:last-of-type {
+		justify-content: start;
+	}
+
+	.button {
+		align-items: start;
 	}
 }
