@@ -2,6 +2,7 @@ import { useState } from "react";
 import Navbar from "./Navbar";
 import "./reserve.css";
 import classic_cut_img from "./assets/classic-cut.svg";
+import { useNavigate } from "react-router";
 
 function Reserve() {
 	const [name, setName] = useState("");
@@ -9,6 +10,7 @@ function Reserve() {
 	const [details, setDetails] = useState("");
 	const [service, setService] = useState("");
 	const [submitted, setSubmit] = useState(false);
+	const navigate = useNavigate();
 
 	function handleName(e) {
 		if (e.target.value === "") e.target.style.borderColor = "red";
@@ -31,9 +33,8 @@ function Reserve() {
 	}
 
 	function handleConfirm() {
-		window.location.replace("http://localhost:5173/Frizerie-Andrei-Viziteu/");
 		alert("Rezervare confirmata!");
-		document.getElementsByClassName("reserve-form").reset();
+		navigate("/");
 	}
 
 	function handleCancel() {
