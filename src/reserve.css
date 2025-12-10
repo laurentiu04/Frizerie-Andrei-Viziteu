@@ -1,0 +1,188 @@
+.reserve-form {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	/*overflow: hidden;*/
+}
+
+.reserve-form h1 {
+	width: max-content;
+	font-size: 4rem;
+	margin: 2rem 0rem 2rem 0rem;
+	font-weight: 500;
+}
+
+.reserve-form p {
+	font-size: 1.5rem;
+	font-weight: 200;
+	margin: 0.5rem 0rem;
+}
+
+.options-container {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: center;
+	justify-content: center;
+	height: min-content;
+	width: 90vw;
+}
+
+.option-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #121212;
+	padding: 1rem;
+	margin: 1rem;
+	border-radius: 1.5rem;
+	width: max-;
+	flex: 1;
+	cursor: pointer;
+	transition: all 0.15s cubic-bezier(0.39, 0.575, 0.565, 1);
+}
+
+.option-card:hover {
+	background-color: #202020;
+}
+
+.selected {
+	filter: invert(100%);
+}
+
+.option-card .title {
+	font-weight: 400;
+	font-size: 1.5rem;
+	/*line-height: 1rem;*/
+	margin: 0;
+	pointer-events: none;
+	width: max-content;
+}
+
+.option-card .info {
+	font-size: 1.3rem;
+	margin: 0;
+	pointer-events: none;
+	width: max-content;
+}
+
+.option-card img {
+	width: 4rem;
+	margin: 1rem;
+	pointer-events: none;
+}
+
+.reserve-form input,
+.reserve-form textarea {
+	width: 20rem;
+	height: 2.5rem;
+	background-color: rgb(20, 20, 20);
+	border: 1px solid rgb(30, 30, 30);
+	border-radius: 1.5rem;
+	margin-bottom: 1rem;
+	color: white;
+	padding: 0rem 1rem;
+	font-size: 1.2rem;
+}
+
+.reserve-form input:last-of-type {
+	cursor: pointer;
+}
+
+.reserve-form textarea {
+	resize: none;
+	height: 7rem;
+	border-radius: 1rem;
+	padding: 0.5rem 1rem;
+}
+
+.reserve-succes-info {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	background-color: black;
+	opacity: 0;
+	transition: all 0.15s linear;
+	pointer-events: none;
+}
+
+.reserve-succes-info p {
+	font-size: 1.5rem;
+	margin: 0.2rem 0rem;
+	width: 90%;
+	height: auto;
+	line-clamp: clamp;
+	display: flex;
+	flex-direction: column;
+	text-wrap: pretty;
+}
+
+.reserve-succes-info h1 {
+	font-weight: 400;
+	font-size: calc(1.5rem + 1vw);
+}
+
+.show {
+	opacity: 1;
+}
+
+.hide {
+	pointer-events: none;
+	display: none;
+}
+
+@media (max-width: 1020px) {
+	.reserve-form p {
+		font-size: calc(0.8rem + 1vw);
+	}
+	.reserve-form input {
+		width: min(calc(18rem + 5vw), 80%);
+		height: max-content;
+		border-radius: calc(1rem + 2vw);
+		margin-bottom: calc(0.8rem + 1vw);
+		padding: 0.5rem calc(0.8rem + 1vw);
+		font-size: calc(0.7rem + 1.3vw);
+	}
+
+	.reserve-form textarea {
+		width: min(calc(18rem + 5vw), 80%);
+		height: calc(10rem + 3vw);
+		scrollbar-width: 0;
+		border-radius: calc(0.5rem + 1vw);
+		padding: 0.5rem 1rem;
+		font-size: calc(0.7rem + 1.3vw);
+	}
+
+	.reserve-form h1 {
+		font-size: calc(2rem + 3vw);
+		margin: 2rem 0rem 2rem 0rem;
+	}
+
+	.option-card {
+		margin: calc(0.5rem + 1vw);
+		padding: calc(0.8rem + 1vw);
+	}
+	.option-card img {
+		width: calc(1.5rem + 4vw);
+		margin: calc(0.2rem + 1vw);
+	}
+
+	.option-card .title {
+		font-size: calc(0.8rem + 1vw);
+	}
+
+	.option-card .info {
+		font-size: calc(0.5rem + 1vw);
+	}
+}

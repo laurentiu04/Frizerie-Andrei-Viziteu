@@ -83,10 +83,12 @@
 		z-index: -1;
 		background-color: black;
 		transition: all 0.3s linear;
+		pointer-events: none;
 	}
 
 	.show {
 		opacity: 1;
+		pointer-events: unset;
 	}
 
 	#logo {

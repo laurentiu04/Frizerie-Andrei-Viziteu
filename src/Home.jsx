@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Fundal from "./assets/Fundal.png";
 import "./home.css";
@@ -26,8 +27,8 @@ function Home() {
 					<b>STIL</b>
 					PERSONALIZAT
 				</h1>
-				<span className="button" onClick={message}>
-					<p>PROGRAMEAZĂ-TE</p>
+				<span className="reserveButton" onClick={message}>
+					<Link to="/programare">PROGRAMEAZĂ-TE</Link>
 				</span>
 			</div>
 		</>
