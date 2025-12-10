@@ -133,8 +133,27 @@
 	font-size: calc(1.5rem + 1vw);
 }
 
+.confirm-button {
+	font-size: 1.3rem;
+	margin: 1rem;
+	padding: 0.5rem 1rem;
+	background-color: white;
+	color: black;
+	border-radius: 2rem;
+	cursor: pointer;
+}
+
+.cancel-button {
+	font-size: 1rem;
+	border: 1px white solid;
+	border-radius: 2rem;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+}
+
 .show {
 	opacity: 1;
+	pointer-events: unset;
 }
 
 .hide {

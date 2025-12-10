@@ -30,10 +30,19 @@ function Reserve() {
 		setService(e.target.children[1].textContent);
 	}
 
+	function handleConfirm() {
+		window.location.replace("http://localhost:5173/Frizerie-Andrei-Viziteu/");
+		alert("Rezervare confirmata!");
+		document.getElementsByClassName("reserve-form").reset();
+	}
+
+	function handleCancel() {
+		setSubmit(false);
+	}
+
 	function handleSubmit(e) {
 		e.preventDefault();
 		if (name !== "" && phone.length == 10 && service !== "") {
-			e.target.reset();
 			setSubmit(true);
 		}
 	}
@@ -127,11 +136,18 @@ function Reserve() {
 					submitted ? "reserve-succes-info show" : "reserve-succes-info"
 				}
 			>
-				<h1>Programare realizată cu succes!</h1>
+				<h1>Confirmi rezervarea?</h1>
 				<p>Nume: {name}</p>
 				<p>Telefon: {phone}</p>
-				<p>Detalii suplimentare: {details}</p>
 				<p>Serviciul ales: {service}</p>
+				<p>Detalii suplimentare: {details}</p>
+
+				<span className="confirm-button" onClick={handleConfirm}>
+					CONFIRM
+				</span>
+				<span className="cancel-button" onClick={handleCancel}>
+					ANULEAZĂ
+				</span>
 			</div>
 		</>
 	);
