@@ -4,9 +4,6 @@ import Fundal from "./assets/Fundal.png";
 import "./home.css";
 
 function Home() {
-	const message = () => {
-		console.log("message");
-	};
 	return (
 		<>
 			<Navbar />
@@ -27,7 +24,7 @@ function Home() {
 					<b>STIL</b>
 					PERSONALIZAT
 				</h1>
-				<span className="reserveButton" onClick={message}>
+				<span className="reserveButton">
 					<Link to="/programare">PROGRAMEAZĂ-TE</Link>
 				</span>
 			</div>

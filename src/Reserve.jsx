@@ -2,7 +2,10 @@ import { useState } from "react";
 import Navbar from "./Navbar";
 import "./reserve.css";
 import classic_cut_img from "./assets/classic-cut.svg";
+import modern_cut_img from "./assets/modern-cut.svg";
+import beard_cut_img from "./assets/beard-cut.svg";
 import { useNavigate } from "react-router";
+import Booking from "./Booking";
 
 function Reserve() {
 	const [name, setName] = useState("");
@@ -10,6 +13,11 @@ function Reserve() {
 	const [details, setDetails] = useState("");
 	const [service, setService] = useState("");
 	const [submitted, setSubmit] = useState(false);
+	const [bookingDetails, setBookingDetails] = useState({
+		day: "",
+		time: "",
+	});
+
 	const navigate = useNavigate();
 
 	function handleName(e) {
@@ -43,10 +51,20 @@ function Reserve() {
 
 	function handleSubmit(e) {
 		e.preventDefault();
-		if (name !== "" && phone.length == 10 && service !== "") {
+		if (
+			name !== "" &&
+			phone.length == 10 &&
+			service !== "" &&
+			bookingDetails.day !== "" &&
+			bookingDetails.time !== ""
+		) {
 			setSubmit(true);
 		}
 	}
+
+	const handleBookingComplete = (day, time) => {
+		setBookingDetails({ day, time });
+	};
 
 	return (
 		<>
@@ -96,7 +114,7 @@ function Reserve() {
 						}
 						onClick={handleService}
 					>
-						<img src={classic_cut_img} />
+						<img src={modern_cut_img} />
 						<p className="title">Tuns modern</p>
 						<p className="info">40 min | 50 ron</p>
 					</div>
@@ -106,7 +124,7 @@ function Reserve() {
 						}
 						onClick={handleService}
 					>
-						<img src={classic_cut_img} />
+						<img src={beard_cut_img} />
 						<p className="title">Tuns barbă</p>
 						<p className="info">15 min | 30 ron</p>
 					</div>
@@ -118,11 +136,13 @@ function Reserve() {
 						}
 						onClick={handleService}
 					>
-						<img src={classic_cut_img} />
+						<img src={beard_cut_img} />
 						<p className="title">Tuns + barbă</p>
 						<p className="info">50 min | 65 ron</p>
 					</div>
 				</div>
+				<p>Selectează data și ora:</p>
+				<Booking onBookingChange={handleBookingComplete} />
 				<p>Detalii suplimentare:</p>
 				<textarea
 					name="details"
@@ -138,10 +158,16 @@ function Reserve() {
 				}
 			>
 				<h1>Confirmi rezervarea?</h1>
-				<p>Nume: {name}</p>
-				<p>Telefon: {phone}</p>
-				<p>Serviciul ales: {service}</p>
-				<p>Detalii suplimentare: {details}</p>
+				<b>Nume:</b>
+				<p>{name}</p>
+				<b>Telefon:</b>
+				<p>{phone}</p>
+				<b>Serviciul ales:</b>
+				<p>{service}</p>
+				<b>Data și ora:</b>
+				<p>{bookingDetails.day + " ora " + bookingDetails.time}</p>
+				<b>Detalii suplimentare:</b>
+				<p>{details}</p>
 
 				<span className="confirm-button" onClick={handleConfirm}>
 					CONFIRM

@@ -1,0 +1,104 @@
+.calendar-ct {
+	--font-size: 1.2rem;
+	width: min(calc(var(--font-size) * 3.2 * 10.5), 100%);
+	display: flex;
+	flex-direction: column;
+	/*overflow: hidden;*/
+	border-radius: 1rem;
+	overflow: hidden;
+	border: 1px solid #303030;
+	margin: 1rem;
+}
+
+.day-ct {
+	display: inline-flex;
+	width: 100%;
+	overflow-y: auto;
+	font-size: 1.3rem;
+	background-color: #101010;
+	padding: 0.5rem;
+	border-bottom: 1px solid #303030;
+}
+
+.day-ct::-webkit-scrollbar {
+	/* 1. Define the width of the scrollbar */
+	width: 6px;
+	height: 6px; /* Needed if it's a horizontal scrollbar */
+}
+
+.day-ct::-webkit-scrollbar-track {
+	/* 2. Style the background area the scrollbar moves in (the track) */
+	background-color: transparent; /* Makes the track background invisible */
+	border-radius: 10px; /* Optional: adds a slight curve to the track */
+}
+
+.day-ct::-webkit-scrollbar-thumb {
+	/* 3. Style the actual movable bar (the thumb) */
+	background-color: #888; /* A medium grey color for the thumb */
+	border-radius: 10px; /* Makes the thumb rounded */
+}
+
+.day-ct::-webkit-scrollbar-thumb:hover {
+	/* 4. Optional: Style on hover for better user experience */
+	background-color: #555; /* Darker grey when hovering */
+}
+
+.day-ct span {
+	display: flex;
+	white-space: nowrap;
+	/*border: 1px solid white;*/
+	padding: 0.5rem;
+	margin: 0rem 0.2rem;
+	border-radius: 1rem;
+	transition: all 0.2s linear;
+	background-color: #1b1b1b;
+}
+
+.day-ct span:hover,
+.time-ct p:hover {
+	background-color: #252525;
+}
+
+.time-ct {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	padding: 0.5rem;
+	height: 15rem;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+.time-ct p {
+	border-radius: 1rem;
+	transition: all 0.2s linear;
+}
+
+.time-ct::-webkit-scrollbar {
+	/* 1. Define the width of the scrollbar */
+	width: 6px;
+	height: 6px; /* Needed if it's a horizontal scrollbar */
+}
+
+.time-ct::-webkit-scrollbar-track {
+	/* 2. Style the background area the scrollbar moves in (the track) */
+	background-color: transparent; /* Makes the track background invisible */
+	border-radius: 10px; /* Optional: adds a slight curve to the track */
+}
+
+.time-ct::-webkit-scrollbar-thumb {
+	/* 3. Style the actual movable bar (the thumb) */
+	background-color: #888; /* A medium grey color for the thumb */
+	border-radius: 10px; /* Makes the thumb rounded */
+}
+
+.time-ct::-webkit-scrollbar-thumb:hover {
+	/* 4. Optional: Style on hover for better user experience */
+	background-color: #555; /* Darker grey when hovering */
+}
+
+.time-ct > p.selected {
+	filter: unset;
+	background-color: white;
+	color: black;
+}

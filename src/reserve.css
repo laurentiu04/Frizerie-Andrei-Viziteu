@@ -1,9 +1,14 @@
+body {
+	background-color: #070707;
+}
+
 .reserve-form {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	height: 100%;
+	height: auto;
+	/*max-height: 89%;*/
 	width: 100%;
 	box-sizing: border-box;
 	/*overflow: hidden;*/
@@ -11,8 +16,10 @@
 
 .reserve-form h1 {
 	width: max-content;
+	height: max-content;
 	font-size: 4rem;
-	margin: 2rem 0rem 2rem 0rem;
+	padding: 2rem 0rem 2rem 0rem;
+	margin: 0px;
 	font-weight: 500;
 }
 
@@ -35,11 +42,12 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background-color: #121212;
+	background-color: #0c0c0c;
+	border: 1px solid #303030;
+	opacity: 0.6;
 	padding: 1rem;
 	margin: 1rem;
 	border-radius: 1.5rem;
-	width: max-;
 	flex: 1;
 	cursor: pointer;
 	transition: all 0.15s cubic-bezier(0.39, 0.575, 0.565, 1);
@@ -47,9 +55,11 @@
 
 .option-card:hover {
 	background-color: #202020;
+	opacity: 1;
 }
 
 .selected {
+	opacity: 1;
 	filter: invert(100%);
 }
 
@@ -79,8 +89,8 @@
 .reserve-form textarea {
 	width: 20rem;
 	height: 2.5rem;
-	background-color: rgb(20, 20, 20);
-	border: 1px solid rgb(30, 30, 30);
+	background-color: #0d0d0d;
+	border: 1px solid #202020;
 	border-radius: 1.5rem;
 	margin-bottom: 1rem;
 	color: white;
@@ -90,6 +100,8 @@
 
 .reserve-form input:last-of-type {
 	cursor: pointer;
+	background-color: white;
+	color: black;
 }
 
 .reserve-form textarea {
@@ -97,6 +109,7 @@
 	height: 7rem;
 	border-radius: 1rem;
 	padding: 0.5rem 1rem;
+	background-color: transparent;
 }
 
 .reserve-succes-info {
@@ -118,19 +131,25 @@
 }
 
 .reserve-succes-info p {
-	font-size: 1.5rem;
-	margin: 0.2rem 0rem;
+	font-size: calc(0.8rem + 1vw);
+	margin: 0px 0px calc(0.6rem + 0.2vw) 0px;
 	width: 90%;
 	height: auto;
 	line-clamp: clamp;
 	display: flex;
 	flex-direction: column;
 	text-wrap: pretty;
+	white-space: wrap;
 }
 
 .reserve-succes-info h1 {
-	font-weight: 400;
+	font-weight: 800;
 	font-size: calc(1.5rem + 1vw);
+}
+
+.reserve-succes-info b {
+	font-weight: 600;
+	font-size: calc(1rem + 1vw);
 }
 
 .confirm-button {
@@ -162,6 +181,17 @@
 }
 
 @media (max-width: 1020px) {
+	.day-ct span {
+		font-size: calc(0.8rem + 0.6vw) !important;
+		padding: calc(0.2rem + 0.5vw) calc(0.3rem + 0.3vw) !important;
+	}
+
+	.time-ct p {
+		margin: 0;
+		font-size: calc(0.8rem + 0.6vw) !important;
+		padding: calc(0.2rem + 0.5vw) !important;
+	}
+
 	.reserve-form p {
 		font-size: calc(0.8rem + 1vw);
 	}
@@ -171,21 +201,24 @@
 		border-radius: calc(1rem + 2vw);
 		margin-bottom: calc(0.8rem + 1vw);
 		padding: 0.5rem calc(0.8rem + 1vw);
-		font-size: calc(0.7rem + 1.3vw);
+		font-size: calc(0.5rem + 1vw);
 	}
 
 	.reserve-form textarea {
 		width: min(calc(18rem + 5vw), 80%);
-		height: calc(10rem + 3vw);
+		min-height: 10rem;
 		scrollbar-width: 0;
 		border-radius: calc(0.5rem + 1vw);
 		padding: 0.5rem 1rem;
-		font-size: calc(0.7rem + 1.3vw);
+		font-size: calc(0.5rem + 1vw);
 	}
 
 	.reserve-form h1 {
-		font-size: calc(2rem + 3vw);
-		margin: 2rem 0rem 2rem 0rem;
+		min-height: max-content;
+		justify-self: center;
+		box-sizing: content-box;
+		font-size: calc(1.5rem + 3vw);
+		padding: 2rem 0rem 2rem 0rem;
 	}
 
 	.option-card {
