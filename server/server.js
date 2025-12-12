@@ -1,11 +1,12 @@
 // server/server.js
 
 // 1. Load environment variables immediately
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 // Import the router file you created
 const bookingRoutes = require("./routes/bookingRoutes");
@@ -22,14 +23,19 @@ app.use(express.json());
 // Allows requests from your React frontend (crucial for local development)
 app.use(cors());
 
+app.use(express.static(path.join(__dirname, "dist")));
+
 // ==========================================================
 // 3. ROUTE INTEGRATION
 // ==========================================================
 
-// Simple Test Route
-app.get("/", (req, res) => {
-	res.send("Barbershop Booking API is running!");
-});
+// app.get("*", (req, res) => {
+// 	// Verifică dacă cererea este pentru o rută API. Dacă nu, trimite index.html.
+// 	if (!req.url.startsWith("/api")) {
+// 		// Ajustează prefixul API-ului tău
+// 		res.sendFile(path.join(__dirname, "dist", "index.html"));
+// 	}
+// });
 
 // Integrate the booking routes, prefixing all endpoints with /api/bookings
 app.use("/api/bookings", bookingRoutes);
@@ -55,6 +61,6 @@ const PORT = process.env.PORT || 5000;
 // Connect to the DB first, then start the Express server
 connectDB().then(() => {
 	app.listen(PORT, () => {
-		console.log(`Server listening on port http://localhost:${PORT}`);
+		console.log(`Server listening on port:${PORT}`);
 	});
 });
