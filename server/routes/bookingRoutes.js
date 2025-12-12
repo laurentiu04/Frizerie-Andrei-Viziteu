@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Booking = require("../models/booking");
+const path = require("path");
 
 // GET /api/bookings (Read)
 router.get("/", async (req, res) => {

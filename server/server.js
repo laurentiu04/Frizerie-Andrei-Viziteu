@@ -25,20 +25,18 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "dist")));
 
+console.log("🚀 SERVER STARTED FROM:", __dirname);
+
 // ==========================================================
 // 3. ROUTE INTEGRATION
 // ==========================================================
+app.use("/api/bookings", bookingRoutes);
 
-// app.get("*", (req, res) => {
-// 	// Verifică dacă cererea este pentru o rută API. Dacă nu, trimite index.html.
-// 	if (!req.url.startsWith("/api")) {
-// 		// Ajustează prefixul API-ului tău
-// 		res.sendFile(path.join(__dirname, "dist", "index.html"));
-// 	}
-// });
+app.get(/.*/, (req, res) => {
+	res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 // Integrate the booking routes, prefixing all endpoints with /api/bookings
-app.use("/api/bookings", bookingRoutes);
 
 // ==========================================================
 // 4. DATABASE CONNECTION & SERVER START
