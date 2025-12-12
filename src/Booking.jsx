@@ -1,18 +1,73 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "./Booking.css";
 
-function Booking({ onBookingChange }) {
+function Booking({ onBookingChange, selectedService }) {
 	const [daySelection, setDay] = useState("");
 	const [timeSelection, setTime] = useState("");
+	const [timeStamps, setTimeStamps] = useState([]);
 
 	function handleDaySelection(event) {
-		let value = event.currentTarget.dataset.value;
-		setDay(value);
+		let _day = event.currentTarget.dataset.value;
+		setDay(_day);
 
 		if (onBookingChange) {
-			onBookingChange(value, timeSelection);
+			onBookingChange(_day, timeSelection);
 		}
 	}
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const reservations = await axios.get(
+				"http://localhost:3000/api/bookings",
+				{
+					params: { day: daySelection },
+				},
+			);
+
+			const data = reservations.data;
+
+			const openHour = 9;
+			const closeHour = 17;
+			const timeInterval = 10;
+			const totalTime = (closeHour - openHour) * 60;
+
+			const newTimeStamps = [];
+
+			for (let passed = 0; passed < totalTime; passed += timeInterval) {
+				let hourPassed = Math.floor(passed / 60);
+				let minutesPassed = passed % 60;
+
+				const timeStamp =
+					(openHour + hourPassed).toString() +
+					":" +
+					minutesPassed.toString().padStart(2, "0");
+
+				if (data) {
+					const d = data.find((e) => e.time === timeStamp);
+					if (!d) newTimeStamps.push(timeStamp);
+					else {
+						for (
+							let i = 0;
+							i < Math.round(selectedService.time / timeInterval);
+							i++
+						) {
+							if (newTimeStamps.length != 0) newTimeStamps.pop();
+						}
+
+						console.log(d);
+						// if ()
+						passed +=
+							(Math.round(d.service.time / timeInterval) - 1) * timeInterval;
+					}
+				}
+			}
+
+			setTimeStamps(newTimeStamps);
+		};
+
+		fetchData();
+	}, [daySelection, selectedService]);
 
 	function handleTimeSelection(event) {
 		let value = event.currentTarget.dataset.value;
@@ -23,6 +78,7 @@ function Booking({ onBookingChange }) {
 		}
 	}
 
+	// ----- Get all 31 days from the current one -----
 	const options = { day: "numeric", month: "short" };
 	const days = [];
 	const now = new Date();
@@ -32,23 +88,7 @@ function Booking({ onBookingChange }) {
 		d.setDate(now.getDate() + i);
 		days.push(d.toLocaleDateString("ro-RO", options).replace(".", ""));
 	}
-
-	const openHour = 10,
-		closeHour = 20;
-	const timeInterval = 10;
-	const totalTime = (closeHour - openHour) * 60;
-	const timeStamps = [];
-
-	for (let passed = 0; passed < totalTime; passed += timeInterval) {
-		let hourPassed = Math.floor(passed / 60);
-		let minutesPassed = passed % 60;
-
-		timeStamps.push(
-			(openHour + hourPassed).toString() +
-				":" +
-				minutesPassed.toString().padStart(2, "0"),
-		);
-	}
+	// ------------------------------------------------
 
 	return (
 		<>

@@ -180,18 +180,18 @@ body {
 	display: none;
 }
 
+.day-ct span {
+	font-size: calc(0.8rem + 0.6vw) !important;
+	padding: calc(0.2rem + 0.5vw) calc(0.3rem + 0.3vw) !important;
+}
+
+.time-ct p {
+	margin: 0;
+	font-size: calc(0.8rem + 0.6vw) !important;
+	padding: calc(0.2rem + 0.5vw) !important;
+}
+
 @media (max-width: 1020px) {
-	.day-ct span {
-		font-size: calc(0.8rem + 0.6vw) !important;
-		padding: calc(0.2rem + 0.5vw) calc(0.3rem + 0.3vw) !important;
-	}
-
-	.time-ct p {
-		margin: 0;
-		font-size: calc(0.8rem + 0.6vw) !important;
-		padding: calc(0.2rem + 0.5vw) !important;
-	}
-
 	.reserve-form p {
 		font-size: calc(0.8rem + 1vw);
 	}

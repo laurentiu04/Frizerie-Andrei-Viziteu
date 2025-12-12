@@ -4,19 +4,48 @@ import "./reserve.css";
 import classic_cut_img from "./assets/classic-cut.svg";
 import modern_cut_img from "./assets/modern-cut.svg";
 import beard_cut_img from "./assets/beard-cut.svg";
+import beard_and_hair_img from "./assets/beard_and_hair.svg";
 import { useNavigate } from "react-router";
+import axios from "axios";
 import Booking from "./Booking";
 
 function Reserve() {
-	const [name, setName] = useState("");
-	const [phone, setPhone] = useState("");
-	const [details, setDetails] = useState("");
-	const [service, setService] = useState("");
+	const [_name, setName] = useState("");
+	const [_phone, setPhone] = useState("");
+	const [_details, setDetails] = useState("");
+	const [_service, setService] = useState({});
 	const [submitted, setSubmit] = useState(false);
 	const [bookingDetails, setBookingDetails] = useState({
 		day: "",
 		time: "",
 	});
+
+	const services = [
+		{
+			name: "Tuns clasic",
+			icon: classic_cut_img,
+			time: 30,
+			price: 40,
+		},
+		{
+			name: "Tuns modern",
+			icon: modern_cut_img,
+			time: 40,
+			price: 50,
+		},
+		{
+			name: "Tuns barbă",
+			icon: beard_cut_img,
+			time: 15,
+			price: 30,
+		},
+		{
+			name: "Tuns + barbă",
+			icon: beard_and_hair_img,
+			time: 50,
+			price: 65,
+		},
+	];
 
 	const navigate = useNavigate();
 
@@ -37,24 +66,15 @@ function Reserve() {
 	}
 
 	function handleService(e) {
-		setService(e.target.children[1].textContent);
-	}
-
-	function handleConfirm() {
-		alert("Rezervare confirmata!");
-		navigate("/");
-	}
-
-	function handleCancel() {
-		setSubmit(false);
+		setService(e);
 	}
 
 	function handleSubmit(e) {
 		e.preventDefault();
 		if (
-			name !== "" &&
-			phone.length == 10 &&
-			service !== "" &&
+			_name !== "" &&
+			_phone.length == 10 &&
+			_service != {} &&
 			bookingDetails.day !== "" &&
 			bookingDetails.time !== ""
 		) {
@@ -66,6 +86,48 @@ function Reserve() {
 		setBookingDetails({ day, time });
 	};
 
+	async function saveBooking() {
+		// 1. Define the data object to send (must match your Mongoose Schema fields)
+		const bookingData = {
+			name: _name,
+			phone: _phone,
+			service: {
+				name: _service.name,
+				time: _service.time,
+				price: _service.price,
+			},
+			details: _details,
+			day: bookingDetails.day,
+			time: bookingDetails.time,
+		};
+
+		try {
+			// 2. Send the POST request to your running server endpoint
+			const response = await axios.post(
+				"http://localhost:3000/api/bookings",
+				bookingData,
+			);
+
+			console.log("✅ Booking successfully saved:", response.data);
+			alert("Programare confirmată!");
+		} catch (error) {
+			console.error(
+				"❌ Error saving booking:",
+				error.response ? error.response.data : error.message,
+			);
+			alert("Failed to save booking. Please try again.");
+		}
+	}
+
+	function handleConfirm() {
+		saveBooking();
+		navigate("/");
+	}
+
+	function handleCancel() {
+		setSubmit(false);
+	}
+
 	return (
 		<>
 			<Navbar />
@@ -74,6 +136,7 @@ function Reserve() {
 				onSubmit={handleSubmit}
 			>
 				<h1 className="title">PROGRAMARE</h1>
+				{/* ============ NAME INPUT ================ */}
 				<p>Nume complet:</p>
 				<input
 					name="full-name"
@@ -85,6 +148,8 @@ function Reserve() {
 						}
 					}}
 				/>
+				{/* ========================================== */}
+				{/* ============ PHONE NUMBER INPUT ============ */}
 				<p>Număr de telefon:</p>
 				<input
 					name="phone-number"
@@ -96,53 +161,35 @@ function Reserve() {
 						}
 					}}
 				/>
+				{/* ============================================= */}
+				{/* ============ SERVICE OPTIONS ============ */}
 				<p>Selectează un serviciu:</p>
 				<div className="options-container">
-					<div
-						className={
-							service === "Tuns clasic" ? "option-card selected" : "option-card"
-						}
-						onClick={handleService}
-					>
-						<img src={classic_cut_img} />
-						<p className="title">Tuns clasic</p>
-						<p className="info">30 min | 40 ron</p>
-					</div>
-					<div
-						className={
-							service === "Tuns modern" ? "option-card selected" : "option-card"
-						}
-						onClick={handleService}
-					>
-						<img src={modern_cut_img} />
-						<p className="title">Tuns modern</p>
-						<p className="info">40 min | 50 ron</p>
-					</div>
-					<div
-						className={
-							service === "Tuns barbă" ? "option-card selected" : "option-card"
-						}
-						onClick={handleService}
-					>
-						<img src={beard_cut_img} />
-						<p className="title">Tuns barbă</p>
-						<p className="info">15 min | 30 ron</p>
-					</div>
-					<div
-						className={
-							service === "Tuns + barbă"
-								? "option-card selected"
-								: "option-card"
-						}
-						onClick={handleService}
-					>
-						<img src={beard_cut_img} />
-						<p className="title">Tuns + barbă</p>
-						<p className="info">50 min | 65 ron</p>
-					</div>
+					{services.map((s) => (
+						<div
+							className={
+								_service.name === s.name
+									? "option-card selected"
+									: "option-card"
+							}
+							onClick={() => handleService(s)}
+							key={s.name}
+						>
+							<img src={s.icon} />
+							<p className="title">{s.name}</p>
+							<p className="info">{s.time + " min | " + s.price + " ron"}</p>
+						</div>
+					))}
 				</div>
+				{/* =========================================== */}
+				{/* ========== TIME AND DAY SELECTION =============== */}
 				<p>Selectează data și ora:</p>
-				<Booking onBookingChange={handleBookingComplete} />
+				<Booking
+					onBookingChange={handleBookingComplete}
+					selectedService={_service}
+				/>
+				{/* ================================================= */}
+				{/* ============== ADDITIONAL DETAILS INPUT ============= */}
 				<p>Detalii suplimentare:</p>
 				<textarea
 					name="details"
@@ -150,24 +197,26 @@ function Reserve() {
 					rows={4}
 					onChange={handleDetails}
 				/>
-				<input type="submit" value="Rezervă" />
+				{/* ==================================================== */}
+				<input type="submit" value="Rezervă" /> {/* SUBMIT FOR CONFIRMATION */}
 			</form>
+
 			<div
 				className={
 					submitted ? "reserve-succes-info show" : "reserve-succes-info"
 				}
 			>
-				<h1>Confirmi rezervarea?</h1>
+				<h1>Confirmi programarea?</h1>
 				<b>Nume:</b>
-				<p>{name}</p>
+				<p>{_name}</p>
 				<b>Telefon:</b>
-				<p>{phone}</p>
+				<p>{_phone}</p>
 				<b>Serviciul ales:</b>
-				<p>{service}</p>
+				<p>{_service.name}</p>
 				<b>Data și ora:</b>
 				<p>{bookingDetails.day + " ora " + bookingDetails.time}</p>
 				<b>Detalii suplimentare:</b>
-				<p>{details}</p>
+				<p>{_details}</p>
 
 				<span className="confirm-button" onClick={handleConfirm}>
 					CONFIRM
