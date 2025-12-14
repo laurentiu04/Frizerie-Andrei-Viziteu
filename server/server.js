@@ -23,26 +23,13 @@ app.use(express.json());
 // Allows requests from your React frontend (crucial for local development)
 app.use(cors());
 
-console.log("🚀 SERVER STARTED FROM:", __dirname);
-
-// ==========================================================
-// 3. ROUTE INTEGRATION
-// ==========================================================
-
-app.use("/api", bookingRoutes);
+app.use("/api/bookings", bookingRoutes);
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get(/.*/, (req, res) => {
 	res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-// Integrate the booking routes, prefixing all endpoints with /api/bookings
-
-// ==========================================================
-// 4. DATABASE CONNECTION & SERVER START
-// ==========================================================
-
-// Define the database connection function
 const connectDB = async () => {
 	try {
 		await mongoose.connect(process.env.MONGO_URI);
