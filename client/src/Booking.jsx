@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, process } from "react";
 import axios from "axios";
 import "./Booking.css";
 
@@ -18,12 +18,11 @@ function Booking({ onBookingChange, selectedService }) {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const reservations = await axios.get(
-				"http://localhost:3000/api/bookings",
-				{
-					params: { day: daySelection },
-				},
-			);
+			const reservations = await axios.get("/api/bookings", {
+				params: { day: daySelection },
+			});
+
+			// console.log(reservations);
 
 			const data = reservations.data;
 

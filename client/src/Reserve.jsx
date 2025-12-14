@@ -103,10 +103,7 @@ function Reserve() {
 
 		try {
 			// 2. Send the POST request to your running server endpoint
-			const response = await axios.post(
-				"http://localhost:3000/api/bookings",
-				bookingData,
-			);
+			const response = await axios.post("/api/bookings", bookingData);
 
 			console.log("✅ Booking successfully saved:", response.data);
 			alert("Programare confirmată!");

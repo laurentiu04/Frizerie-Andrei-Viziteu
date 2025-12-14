@@ -23,14 +23,14 @@ app.use(express.json());
 // Allows requests from your React frontend (crucial for local development)
 app.use(cors());
 
-app.use(express.static(path.join(__dirname, "dist")));
-
 console.log("🚀 SERVER STARTED FROM:", __dirname);
 
 // ==========================================================
 // 3. ROUTE INTEGRATION
 // ==========================================================
-app.use("/api/bookings", bookingRoutes);
+
+app.use("/api", bookingRoutes);
+app.use(express.static(path.join(__dirname, "dist")));
 
 app.get(/.*/, (req, res) => {
 	res.sendFile(path.join(__dirname, "dist", "index.html"));

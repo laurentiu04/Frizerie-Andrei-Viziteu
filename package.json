@@ -12,7 +12,7 @@
 		"lint": "eslint .",
 		"start": "node ./server/server.js",
 		"preview": "vite preview",
-		"start-dev": "concurrently \"npm run start-server --prefix server\" \"npm run dev\""
+		"start-dev": "concurrently \"npm run start\" \"npm run dev\""
 	},
 	"dependencies": {
 		"axios": "^1.13.2",
