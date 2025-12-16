@@ -20,29 +20,6 @@
 	border-bottom: 1px solid #303030;
 }
 
-.day-ct::-webkit-scrollbar {
-	/* 1. Define the width of the scrollbar */
-	width: 6px;
-	height: 6px; /* Needed if it's a horizontal scrollbar */
-}
-
-.day-ct::-webkit-scrollbar-track {
-	/* 2. Style the background area the scrollbar moves in (the track) */
-	background-color: transparent; /* Makes the track background invisible */
-	border-radius: 10px; /* Optional: adds a slight curve to the track */
-}
-
-.day-ct::-webkit-scrollbar-thumb {
-	/* 3. Style the actual movable bar (the thumb) */
-	background-color: #888; /* A medium grey color for the thumb */
-	border-radius: 10px; /* Makes the thumb rounded */
-}
-
-.day-ct::-webkit-scrollbar-thumb:hover {
-	/* 4. Optional: Style on hover for better user experience */
-	background-color: #555; /* Darker grey when hovering */
-}
-
 .day-ct span {
 	display: flex;
 	white-space: nowrap;
@@ -75,31 +52,14 @@
 	align-content: center;
 }
 
-.time-ct::-webkit-scrollbar {
-	/* 1. Define the width of the scrollbar */
-	width: 6px;
-	height: 6px; /* Needed if it's a horizontal scrollbar */
-}
-
-.time-ct::-webkit-scrollbar-track {
-	/* 2. Style the background area the scrollbar moves in (the track) */
-	background-color: transparent; /* Makes the track background invisible */
-	border-radius: 10px; /* Optional: adds a slight curve to the track */
-}
-
-.time-ct::-webkit-scrollbar-thumb {
-	/* 3. Style the actual movable bar (the thumb) */
-	background-color: #888; /* A medium grey color for the thumb */
-	border-radius: 10px; /* Makes the thumb rounded */
-}
-
-.time-ct::-webkit-scrollbar-thumb:hover {
-	/* 4. Optional: Style on hover for better user experience */
-	background-color: #555; /* Darker grey when hovering */
-}
-
 .time-ct > p.selected {
 	filter: unset;
 	background-color: white;
 	color: black;
+}
+
+.no-free-slot {
+	font-size: calc(0.7rem + 1vw) !important;
+	text-align: center;
+	padding: calc(1rem + 0.5vw) calc(0.5rem + 0.5vw) !important;
 }

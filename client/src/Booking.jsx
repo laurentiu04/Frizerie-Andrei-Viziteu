@@ -22,8 +22,6 @@ function Booking({ onBookingChange, selectedService }) {
 				params: { day: daySelection },
 			});
 
-			// console.log(reservations);
-
 			const data = reservations.data;
 
 			const openHour = 9;
@@ -53,8 +51,6 @@ function Booking({ onBookingChange, selectedService }) {
 						) {
 							if (newTimeStamps.length != 0) newTimeStamps.pop();
 						}
-
-						console.log(d);
 						// if ()
 						passed +=
 							(Math.round(d.service.time / timeInterval) - 1) * timeInterval;
@@ -115,6 +111,13 @@ function Booking({ onBookingChange, selectedService }) {
 							{timestamp}
 						</p>
 					))}
+					<h1
+						className="no-free-slot"
+						style={{ display: timeStamps.length == 0 ? "unset" : "none" }}
+					>
+						{" "}
+						Nu mai sunt locuri disponibile{" "}
+					</h1>
 				</div>
 			</div>
 		</>
