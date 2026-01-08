@@ -71,6 +71,11 @@
 	padding: 0.3rem;
 }
 
+.data-spinner {
+	width: 100%;
+	text-align: center;
+}
+
 .total-entries {
 	font-weight: 400 !important;
 	margin: 0.5rem 0rem 0rem 0rem;

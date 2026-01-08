@@ -1,19 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import "./admin.css";
 import Logo from "./assets/Logo.svg";
 import axios from "axios";
-import { useEffect } from "react";
-import { useRef } from "react";
+axios.defaults.withCredentials = true;
+
+import { useNavigate } from "react-router-dom";
 
 function Admin() {
+	const [loading, setLoading] = useState(true);
+	const [loggedIn, setLogged] = useState(false);
+	const [spinner, setSpinner] = useState(false);
+	const navigate = useNavigate();
+
 	let days = [];
 	const options = { day: "numeric", month: "short" };
 	const [tableDay, setTableDay] = useState(
 		new Date().toLocaleDateString("ro-RO", options).replace(".", ""),
 	);
 	const [entries, setEntries] = useState([]);
-	let ref;
 
 	// ----- Get all 31 days from the current one -----
 	const now = new Date();
@@ -31,22 +36,51 @@ function Admin() {
 	}
 
 	useEffect(() => {
-		const getTodaysEntries = async () => {
+		const initializeAdmin = async () => {
 			try {
+				if (!loggedIn) {
+					const authResponse = await axios.get(
+						`/api/check-login?t=${new Date().getTime()}`,
+					);
+
+					if (!authResponse.data.authenticated) {
+						navigate("/admin-login");
+						setLogged(false);
+						return; // Stop here if not logged in
+					} else {
+						setLogged(true);
+					}
+				}
+
+				// Load selected day bookings
+
+				setSpinner(true);
+				setEntries([]);
 				const entries_data = await axios.get("/api/bookings", {
 					params: { day: tableDay },
 				});
 
 				if (entries_data) {
+					setSpinner(false);
 					setEntries(entries_data.data);
+					setLoading(false); // Authentication and Data are both ready
 				}
 			} catch (e) {
-				console.log(e);
+				console.log("Error in Admin initialization:", e);
+				// If the error is a 401, redirect to login
+				if (e.response && e.response.status === 401) {
+					navigate("/admin-login");
+				}
 			}
 		};
 
-		getTodaysEntries();
-	}, [tableDay]);
+		initializeAdmin();
+	}, [tableDay, navigate]); // Re-run when the selected day changes
+
+	// Prevent the rest of the component from rendering while checking auth
+	if (loading) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<>
@@ -71,6 +105,12 @@ function Admin() {
 					</div>
 					<h1 className="total-entries">{entries.length}</h1>
 					<div className="res-table-entries">
+						<p
+							className="data-spinner"
+							style={{ display: spinner ? "block" : "none" }}
+						>
+							loading data...
+						</p>
 						{entries.map((e) => (
 							<span className="res-entry-info" key={e._id}>
 								<b className="name">{e.name}</b>
