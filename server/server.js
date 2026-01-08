@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: false }));
 // >===========================================<
 
 // // >===========> STATIC <==============<
-// app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "dist")));
 // >===================================<
 
 // >===========> Session && passport <============<
