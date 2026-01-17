@@ -14,4 +14,6 @@ const admin_info = new mongoose.Schema(
 	{ collection: "admin-info" },
 );
 
-module.exports = (connection) => connection.model("Admin", admin_info);
+module.exports = mongoose.connection
+	.useDb("admin-info")
+	.model("Admin", admin_info);

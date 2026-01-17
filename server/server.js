@@ -19,16 +19,30 @@ const app = express(); // Create express server
 
 // >================> Passport init <===================
 
-// ==========> Connect to admin DB <===========
-const adminDB = mongoose.createConnection(process.env.MONGO_ADMIN_URI);
-// <===========================================>
+// // ===========> Connect main DB and start express server <============
+const connectDB = async () => {
+	try {
+		await mongoose.connect(process.env.MONGO_URI);
+		console.log("✅ MongoDB successfully connected!");
+	} catch (err) {
+		console.error("❌ MongoDB connection error:", err);
+		// Exit process with failure code if connection fails
+		process.exit(1);
+	}
+};
 
-const admin_schema = require("./loginSystem/admin-model");
+const PORT = process.env.PORT || 5000; // Get server PORT from .env or use fallback
 
-adminDB.on("connected", () => console.log("Connected to DB!"));
-adminDB.on("error", (err) => console.log("Connection error:", err));
+// Connect to the DB first, then start the Express server
+connectDB().then(() => {
+	app.listen(PORT, () => {
+		console.log(`Server listening on port:${PORT}`);
+	});
+});
+// <=========================================================>
 
-const Admin = admin_schema(adminDB);
+const Admin = require("./loginSystem/admin-model");
+
 const passportInit = require("./loginSystem/passport-config");
 passportInit(passport, Admin);
 
@@ -100,25 +114,3 @@ app.get(/.*/, (req, res) => {
 	res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 // >================================================<
-
-// ===========> Connect main DB and start express server <============
-const connectDB = async () => {
-	try {
-		await mongoose.connect(process.env.MONGO_URI);
-		console.log("✅ MongoDB successfully connected!");
-	} catch (err) {
-		console.error("❌ MongoDB connection error:", err);
-		// Exit process with failure code if connection fails
-		process.exit(1);
-	}
-};
-
-const PORT = process.env.PORT || 5000; // Get server PORT from .env or use fallback
-
-// Connect to the DB first, then start the Express server
-connectDB().then(() => {
-	app.listen(PORT, () => {
-		console.log(`Server listening on port:${PORT}`);
-	});
-});
-// <=========================================================>
