@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import "./App.css";
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Reserve from "./Reserve";
@@ -9,8 +8,6 @@ import axios from "axios";
 import { useState } from "react";
 
 function App() {
-	const [auth, setAuth] = useState();
-
 	return (
 		<>
 			<Routes>

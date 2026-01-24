@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./admin-login.css";
 
 function AdminLogin() {
 	const [user, setUser] = useState("");
@@ -29,19 +30,28 @@ function AdminLogin() {
 		}
 	};
 	return (
-		<form onSubmit={handleSubmit}>
-			<input
-				type="text"
-				value={user}
-				onChange={(e) => setUser(e.target.value)}
-			/>
-			<input
-				type="password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-			/>
-			<button type="submit">Loghează-te</button>
-		</form>
+		<div className="login-container">
+			<form onSubmit={handleSubmit}>
+				<h1>
+					<b>ADMIN</b> LOGIN
+				</h1>
+				<label htmlFor="user">Utilizator</label>
+				<input
+					name="user"
+					type="text"
+					value={user}
+					onChange={(e) => setUser(e.target.value)}
+				/>
+				<label htmlFor="password">Parolă</label>
+				<input
+					name="password"
+					type="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+				/>
+				<button type="submit">Loghează-te</button>
+			</form>
+		</div>
 	);
 }
 

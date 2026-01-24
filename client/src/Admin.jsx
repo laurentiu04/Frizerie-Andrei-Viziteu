@@ -1,38 +1,31 @@
 import { useState, useEffect } from "react";
-import Navbar from "./Navbar";
+import { useNavigate } from "react-router-dom";
 import "./admin.css";
+import AdminBookings from "./adminBookings";
 import Logo from "./assets/Logo.svg";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
-import { useNavigate } from "react-router-dom";
+// =====> Images imports <=====
+
+import appointments_icon from "./assets/appointments-icon.svg";
+import schedule_icon from "./assets/schedule-icon.svg";
+import statistics_icon from "./assets/statistics-icon.svg";
+
+// <==========================>
 
 function Admin() {
+	document.querySelector("body").style.background = "#131619";
+	document.querySelector("body").style.padding = "1rem 2rem";
+
 	const [loading, setLoading] = useState(true);
 	const [loggedIn, setLogged] = useState(false);
-	const [spinner, setSpinner] = useState(false);
+	const [currentTab, setTab] = useState("programari");
 	const navigate = useNavigate();
 
-	let days = [];
-	const options = { day: "numeric", month: "short" };
-	const [tableDay, setTableDay] = useState(
-		new Date().toLocaleDateString("ro-RO", options).replace(".", ""),
-	);
-	const [entries, setEntries] = useState([]);
-
-	// ----- Get all 31 days from the current one -----
-	const now = new Date();
-
-	for (let i = 0; i <= 31; i++) {
-		const d = new Date(now);
-		d.setDate(now.getDate() + i);
-		days.push(d.toLocaleDateString("ro-RO", options).replace(".", ""));
-	}
-	// ------------------------------------------------
-
-	function handleDaySelect(e) {
-		const day = e.currentTarget.dataset.value;
-		setTableDay(day);
+	function handleTabSelect(e) {
+		const tabName = e.currentTarget.dataset.value;
+		setTab(tabName);
 	}
 
 	useEffect(() => {
@@ -52,19 +45,7 @@ function Admin() {
 					}
 				}
 
-				// Load selected day bookings
-
-				setSpinner(true);
-				setEntries([]);
-				const entries_data = await axios.get("/api/bookings", {
-					params: { day: tableDay },
-				});
-
-				if (entries_data) {
-					setSpinner(false);
-					setEntries(entries_data.data);
-					setLoading(false); // Authentication and Data are both ready
-				}
+				setLoading(false); // Authentication ready
 			} catch (e) {
 				console.log("Error in Admin initialization:", e);
 				// If the error is a 401, redirect to login
@@ -75,7 +56,7 @@ function Admin() {
 		};
 
 		initializeAdmin();
-	}, [tableDay, navigate]); // Re-run when the selected day changes
+	}, [navigate, loggedIn]); // Re-run when the selected day changes
 
 	// Prevent the rest of the component from rendering while checking auth
 	if (loading) {
@@ -84,60 +65,46 @@ function Admin() {
 
 	return (
 		<>
-			<div className="nav">
-				<img src={Logo} />
-				<h1 className="page-title">ADMIN PANEL</h1>
-			</div>
-			<div className="admin-ct">
-				<h1>Programări</h1>
-				<div className="reservations-table">
-					<div className="res-table-days">
-						{days.map((day) => (
-							<span
-								className={tableDay == day ? "selected" : null}
-								key={day}
-								data-value={day}
-								onClick={handleDaySelect}
-							>
-								{day}
-							</span>
-						))}
-					</div>
-					<h1 className="total-entries">{entries.length}</h1>
-					<div className="res-table-entries">
-						<p
-							className="data-spinner"
-							style={{ display: spinner ? "block" : "none" }}
+			<div className="page-ct">
+				{/* =================> NAVBAR <================= */}
+				<div className="nav">
+					<img className="logo" src={Logo} />
+					<ul>
+						<li
+							className={currentTab == "programari" ? "selected" : ""}
+							onClick={handleTabSelect}
+							data-value="programari"
 						>
-							loading data...
-						</p>
-						{entries.map((e) => (
-							<span className="res-entry-info" key={e._id}>
-								<b className="name">{e.name}</b>
-								<div>
-									<b>Ora:</b>
-									<p>{e.time}</p>
-								</div>
-								<div>
-									<b>Serviciu:</b>
-									<p>{e.service.name}</p>
-								</div>
-								<div>
-									<b>Detalii:</b>
-									<p>{e.details}</p>
-								</div>
-								<div>
-									<b>Plasat la:</b>
-									<p>
-										{e.bookedAt.split("T")[1].slice(0, 5) +
-											" | " +
-											e.bookedAt.split("T")[0]}
-									</p>
-								</div>
-							</span>
-						))}
-					</div>
+							<img src={appointments_icon} />
+							Programări
+						</li>
+						<li
+							className={currentTab == "edit_program" ? "selected" : ""}
+							onClick={handleTabSelect}
+							data-value="edit_program"
+						>
+							<img src={schedule_icon} />
+							Editează Program
+						</li>
+						<li
+							className={currentTab == "statistici" ? "selected" : ""}
+							onClick={handleTabSelect}
+							data-value="statistici"
+						>
+							<img src={statistics_icon} />
+							Statistici
+						</li>
+					</ul>
 				</div>
+
+				{/* <======================================================> */}
+
+				{/* >==================> MAIN CONTENT <====================< */}
+				<div className="main-ct">
+					{currentTab === "programari" ? <AdminBookings /> : null}
+				</div>
+
+				{/* <======================================================> */}
 			</div>
 		</>
 	);

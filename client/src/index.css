@@ -17,7 +17,7 @@ header {
 }
 
 html {
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	overflow-y: scroll;
 	/*overflow: hidden;*/
@@ -78,6 +78,6 @@ a {
 
 @media (max-width: 1020px) {
 	body {
-		--window-padding: 40px;
+		--window-padding: 20px;
 	}
 }
