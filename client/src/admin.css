@@ -1,21 +1,20 @@
 .page-ct {
 	display: flex;
-	flex: 1 0;
+	height: 100%;
 }
 
 .nav {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-around;
-	align-items: start;
+	align-items: center;
 	height: max-content;
-	width: 20rem;
-	height: max-content;
-	padding: 1rem 0rem;
+	width: max-content;
+	padding: 2rem 1.8rem;
 
 	ul {
 		list-style: none;
 		padding: 0;
+		margin: 1.5rem 0;
 	}
 
 	li {
@@ -28,36 +27,100 @@
 		align-items: center;
 		user-select: none;
 		cursor: pointer;
-		padding: 0.7rem;
+		padding: 1rem 0;
 		border-radius: 1rem;
 		transition: all 0.5s cubic-bezier(0, 1.1, 0.47, 1.01);
+		opacity: 0.3;
+	}
+
+	li:hover {
+		opacity: 1;
 	}
 
 	.selected {
-		filter: brightness(0) saturate(100%) invert(74%) sepia(59%)
-			saturate(387%) hue-rotate(355deg) brightness(100%) contrast(99%);
+		filter: brightness(0) saturate(100%) invert(74%) sepia(59%) saturate(387%)
+			hue-rotate(355deg) brightness(100%) contrast(99%);
+		opacity: 1;
 	}
 
 	li img {
-		height: 1.3rem;
+		height: 1.5rem;
 		filter: invert(1);
-		margin-right: 0.5rem;
 	}
 
 	.logo {
-		height: 3.7rem;
+		height: 2.5rem;
 	}
 }
 
 .main-ct {
-	height: 100%;
-	width: 100%;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	min-width: 0;
 	box-sizing: border-box;
-	background-color: #16191c;
 	border-radius: 2rem;
-	display: grid;
-	padding: 2rem;
-	/*align-items: center;*/
-	justify-content: center;
+	padding: 0 2rem;
+	margin: 1rem 1rem 1rem 0;
 	border: 1px solid rgba(258, 204, 86, 0.2);
+	background-color: #16191c;
+
+	.tabName {
+		font-weight: 600;
+		font-size: 1.5rem;
+		text-align: center;
+		color: rgba(258, 204, 86, 1);
+		border-bottom: 1px solid rgba(258, 204, 86, 0.2);
+		margin: 0;
+		padding: 1rem;
+	}
+}
+
+@media (max-width: 1000px) {
+	.page-ct {
+		flex-direction: column;
+	}
+
+	.nav,
+	ul {
+		display: flex;
+		flex-direction: row;
+		margin: 0 !important;
+	}
+
+	.nav {
+		padding: 1rem 2rem;
+	}
+
+	.nav ul {
+		margin-left: 1.5rem !important;
+	}
+
+	.nav li {
+		padding: 0;
+		margin: 0 1rem;
+	}
+
+	.main-ct {
+		display: flex;
+		margin: 0 1rem;
+		border-radius: 2rem 2rem 0 0;
+		box-sizing: border-box;
+		padding: 0 1rem;
+	}
+}
+
+@media (max-width: 600px) {
+	.nav .logo {
+		height: 1.7rem;
+	}
+
+	.nav li img {
+		height: 1.2rem;
+	}
+
+	.main-ct .tabName {
+		font-size: 1.2rem;
+	}
 }

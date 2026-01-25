@@ -139,7 +139,7 @@ function Reserve() {
 					name="full-name"
 					maxLength={25}
 					onBlur={handleName}
-					onKeyPress={(event) => {
+					onClick={(event) => {
 						if (/[0-9]/.test(event.key)) {
 							event.preventDefault();
 						}
@@ -152,7 +152,7 @@ function Reserve() {
 					name="phone-number"
 					maxLength={10}
 					onBlur={handlePhone}
-					onKeyPress={(event) => {
+					onClick={(event) => {
 						if (!/[0-9]/.test(event.key)) {
 							event.preventDefault();
 						}

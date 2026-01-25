@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./admin.css";
 import AdminBookings from "./adminBookings";
-import Logo from "./assets/Logo.svg";
+import Logo from "./assets/Short_Logo.png";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
@@ -16,7 +16,7 @@ import statistics_icon from "./assets/statistics-icon.svg";
 
 function Admin() {
 	document.querySelector("body").style.background = "#131619";
-	document.querySelector("body").style.padding = "1rem 2rem";
+	document.querySelector("body").style.padding = "0";
 
 	const [loading, setLoading] = useState(true);
 	const [loggedIn, setLogged] = useState(false);
@@ -76,7 +76,6 @@ function Admin() {
 							data-value="programari"
 						>
 							<img src={appointments_icon} />
-							Programări
 						</li>
 						<li
 							className={currentTab == "edit_program" ? "selected" : ""}
@@ -84,7 +83,6 @@ function Admin() {
 							data-value="edit_program"
 						>
 							<img src={schedule_icon} />
-							Editează Program
 						</li>
 						<li
 							className={currentTab == "statistici" ? "selected" : ""}
@@ -92,7 +90,6 @@ function Admin() {
 							data-value="statistici"
 						>
 							<img src={statistics_icon} />
-							Statistici
 						</li>
 					</ul>
 				</div>
@@ -101,7 +98,12 @@ function Admin() {
 
 				{/* >==================> MAIN CONTENT <====================< */}
 				<div className="main-ct">
-					{currentTab === "programari" ? <AdminBookings /> : null}
+					{currentTab === "programari" ?
+					<>
+						<h1 className="tabName">PROGRAMĂRI</h1>
+						<AdminBookings />
+					</>
+					: null}
 				</div>
 
 				{/* <======================================================> */}

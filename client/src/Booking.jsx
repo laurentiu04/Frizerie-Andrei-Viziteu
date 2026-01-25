@@ -51,7 +51,6 @@ function Booking({ onBookingChange, selectedService }) {
 						) {
 							if (newTimeStamps.length != 0) newTimeStamps.pop();
 						}
-						// if ()
 						passed +=
 							(Math.round(d.service.time / timeInterval) - 1) * timeInterval;
 					}
@@ -101,16 +100,20 @@ function Booking({ onBookingChange, selectedService }) {
 					))}
 				</div>
 				<div className="time-ct">
-					{timeStamps.map((timestamp) => (
-						<p
-							key={timestamp}
-							data-value={timestamp}
-							onClick={handleTimeSelection}
-							className={timeSelection == timestamp ? "selected" : null}
-						>
-							{timestamp}
-						</p>
-					))}
+					{daySelection === "" ? (
+						<p className="no-day-selected">Selectează o zi pentru programare</p>
+					) : (
+						timeStamps.map((timestamp) => (
+							<p
+								key={timestamp}
+								data-value={timestamp}
+								onClick={handleTimeSelection}
+								className={timeSelection == timestamp ? "selected" : null}
+							>
+								{timestamp}
+							</p>
+						))
+					)}
 					<h1
 						className="no-free-slot"
 						style={{ display: timeStamps.length == 0 ? "unset" : "none" }}
