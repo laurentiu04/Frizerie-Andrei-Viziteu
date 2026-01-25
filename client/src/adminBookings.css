@@ -99,9 +99,9 @@
 		.grid-headers,
 		.grid-row {
 			display: grid;
-			grid-template-columns: 1.2fr 5fr 3fr 2fr 3fr 4fr 2.5fr 1.5fr;
+			grid-template-columns: 1.2fr 5fr 3fr 2fr 3fr 10rem 2.5fr 1.5fr;
 			align-items: center;
-			column-gap: 0.4rem;
+			column-gap: 1rem;
 			min-width: 1000px;
 		}
 
@@ -123,7 +123,6 @@
 		}
 
 		.grid-row {
-			display: grid;
 			font-size: 1rem;
 			border-bottom: 1px solid rgba(155, 155, 155, 0.1);
 			width: auto;
@@ -154,11 +153,16 @@
 
 		.grid-row p {
 			margin: 0.8rem 0;
+			/* max-width: 10rem; */
 		}
 
 		.grid-row p:nth-of-type(6) {
+			/* max-width: 100%; */
 			word-wrap: break-word;
-			white-space-collapse: preserve-breaks;
+			white-space-collapse: break-spaces;
+			/* white-space: normal; */
+			overflow-wrap: break-word;
+			overflow: hidden;
 		}
 
 		.bookings-list {
@@ -194,6 +198,6 @@
 
 	.grid-headers,
 	.grid-row {
-		grid-template-columns: 0.8fr 3fr 2.5fr 1.5fr 2fr 10rem 2fr 1fr !important;
+		grid-template-columns: 0.6fr 2.5fr 1.5fr 1fr 2fr 10rem 1fr 1fr !important;
 	}
 }
