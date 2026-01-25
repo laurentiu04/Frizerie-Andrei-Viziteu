@@ -132,7 +132,7 @@ function AdminBookings() {
 								</p>
 								<p>{book.time}</p>
 								<p>{book.service.name}</p>
-								<p>{book.details}</p>
+								<p>{book.details || "-"}</p>
 								<p>
 									{new Date(book.bookedAt).toLocaleDateString("ro-RO")}
 									<br></br>

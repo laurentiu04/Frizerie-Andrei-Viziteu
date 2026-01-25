@@ -127,6 +127,7 @@
 			font-size: 1rem;
 			border-bottom: 1px solid rgba(155, 155, 155, 0.1);
 			width: auto;
+			align-items: start;
 		}
 
 		.grid-row .edit-icon {
@@ -134,6 +135,7 @@
 			opacity: 0;
 			transition: all 0.2s linear;
 			justify-self: center;
+			align-self: center;
 		}
 
 		.grid-row:hover .edit-icon {
@@ -152,6 +154,11 @@
 
 		.grid-row p {
 			margin: 0.8rem 0;
+		}
+
+		.grid-row p:nth-of-type(6) {
+			word-wrap: break-word;
+			white-space-collapse: preserve-breaks;
 		}
 
 		.bookings-list {
@@ -187,6 +194,6 @@
 
 	.grid-headers,
 	.grid-row {
-		grid-template-columns: 0.8fr 3.5fr 2.5fr 1.5fr 2fr 3fr 2fr 1fr !important;
+		grid-template-columns: 0.8fr 3fr 2.5fr 1.5fr 2fr 10rem 2fr 1fr !important;
 	}
 }
