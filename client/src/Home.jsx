@@ -6,8 +6,8 @@ import "./home.css";
 function Home() {
 	return (
 		<>
-			<Navbar />
 			<div className="home-container">
+				<Navbar />
 				<div className="fundal-mask">
 					<img id="fundal" src={Fundal} />
 				</div>

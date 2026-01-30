@@ -54,7 +54,7 @@
 }
 
 @media (max-width: 400px) {
-	form {
+	.login-container form {
 		scale: 0.8;
 	}
 }

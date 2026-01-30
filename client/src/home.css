@@ -3,6 +3,7 @@
 	flex-direction: column;
 	align-items: flex-end;
 	height: 100%;
+	padding: 0.5rem 3rem;
 }
 
 .home-container h1 {
