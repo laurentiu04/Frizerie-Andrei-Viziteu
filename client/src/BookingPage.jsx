@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Select from "react-select";
+import Select from "./Select";
 import Navbar from "./Navbar";
 import "./bookingPage.css";
 
@@ -11,7 +11,6 @@ import beard_and_hair_img from "./assets/beard_and_hair.svg";
 import barber_img from "./assets/barber_img.png";
 import calendar_img from "./assets/calendar.png";
 import clock_img from "./assets/clock.png";
-import arrow from "./assets/arrow.png";
 import info_img from "./assets/info.png";
 // <===============================================>
 
@@ -28,58 +27,61 @@ function BookingPage() {
 	const [warning, setWarning] = useState("");
 	const [submitted, setSubmit] = useState(false);
 
-	const services = [
-		{
-			name: "Tuns clasic",
-			icon: classic_cut_img,
-			time: 30,
-			price: 40,
-		},
-		{
-			name: "Tuns modern",
-			icon: modern_cut_img,
-			time: 40,
-			price: 50,
-		},
-		{
-			name: "Tuns barbă",
-			icon: beard_cut_img,
-			time: 15,
-			price: 30,
-		},
-		{
-			name: "Tuns + barbă",
-			icon: beard_and_hair_img,
-			time: 50,
-			price: 65,
-		},
-	];
+	const [services, setServicesData] = useState([]);
 
 	// >============== TIME AND DATE SELECTION SETUP <=====================<
 
-	const [selectedTime, setTime] = useState({ value: "", index: 0 });
-	const [selectedDay, setDay] = useState({ value: "", index: 0 });
-
-	var dayOptions = [];
+	const [selectedTime, setTime] = useState("");
+	const [selectedDay, setDay] = useState("");
+	const [dayOps, setDayOps] = useState(null);
 	const [timeOptions, setTimeOptions] = useState([]);
 
-	const dateOptions = {
-		month: "short",
-		day: "numeric",
-		weekday: "long",
-	};
+	useEffect(() => {
+		const fetchData = async () => {
+			const dbData = (await axios.get("/api/work-info/")).data;
 
-	for (var i = 0; i < 31; i++) {
-		const fullDate = new Date(
-			new Date().getTime() + i * (1000 * 60 * 60 * 24),
-		).toLocaleDateString("ro-RO", dateOptions);
-		const date = fullDate.split(",")[1].replace(".", "");
-		const weekday = fullDate.split(",")[0];
+			setServicesData(dbData.services);
 
-		if (weekday == "duminică") continue;
-		dayOptions.push({ date: date, weekday: weekday });
-	}
+			const dateOptions = {
+				month: "short",
+				day: "numeric",
+				weekday: "long",
+			};
 
+			const freeDays = dbData.free_days;
+			const dayOptions = [];
+
+			for (var i = 0; i < 31; i++) {
+				const fullDate = new Date(
+					new Date().getTime() + i * (1000 * 60 * 60 * 24),
+				).toLocaleDateString("ro-RO", dateOptions);
+				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "");
+				const weekday = fullDate.split(",")[0];
+
+				if (weekday == "duminică") continue;
+				if (
+					freeDays != undefined &&
+					(freeDays.includes(date) ||
+						freeDays.includes(date + " " + new Date().getFullYear().toString()))
+				)
+					continue;
+
+				// console.log(date.substring(1, 7), date.length, freeDays[2].length);
+
+				dayOptions.push({
+					value: date,
+					label: (
+						<>
+							<p>{date}</p> <p className="subtitle">{weekday}</p>
+						</>
+					),
+				});
+			}
+			setDayOps(dayOptions);
+		};
+
+		fetchData();
+	}, []);
 	// console.log(dayOptions) // FOR DEBUG
 
 	// <================================================================>
@@ -112,54 +114,58 @@ function BookingPage() {
 
 	useEffect(() => {
 		const getTimeIntervals = async () => {
-			const openHour = 9;
-			const closeHour = 17;
-			const timeInterval = 10;
-			const totalTime = (closeHour - openHour) * 60;
-
-			const newTimeStamps = [];
+			const dbData = (await axios.get("/api/work-info")).data;
+			const openHour = parseInt(dbData.start_hour);
+			const closeHour = parseInt(dbData.end_hour);
+			const timeInterval = 10; // The step (9:00, 9:10, 9:20...)
+			const serviceDuration = selectedService.time; // e.g., 15 mins
 
 			const bookings = await axios.get("/api/bookings", {
-				params: { day: selectedDay.value },
+				params: { day: selectedDay },
 			});
+			const existingBookings = bookings.data; // Expecting [{time: "09:00", service: {time: 30}}, ...]
 
-			const data = bookings.data;
+			const availableSlots = [];
 
-			console.log(data);
+			// Helper to convert "HH:mm" to total minutes from midnight
+			const toMin = (timeStr) => {
+				const [h, m] = timeStr.split(":").map(Number);
+				return h * 60 + m;
+			};
 
-			for (let passed = 0; passed < totalTime; passed += timeInterval) {
-				let hourPassed = Math.floor(passed / 60);
-				let minutesPassed = passed % 60;
+			const startMin = openHour * 60;
+			const endMin = closeHour * 60;
 
-				const timeStamp =
-					(openHour + hourPassed).toString() +
-					":" +
-					minutesPassed.toString().padStart(2, "0");
+			for (
+				let current = startMin;
+				current <= endMin - serviceDuration;
+				current += timeInterval
+			) {
+				const slotStart = current;
+				const slotEnd = current + serviceDuration;
 
-				if (data) {
-					const d = data.find((e) => e.time === timeStamp);
-					if (!d) newTimeStamps.push(timeStamp);
-					else {
-						for (
-							let i = 0;
-							i < Math.round(selectedService.time / timeInterval);
-							i++
-						) {
-							if (newTimeStamps.length != 0) newTimeStamps.pop();
-						}
-						passed +=
-							(Math.round(d.service.time / timeInterval) - 1) * timeInterval;
-					}
+				// Check if this slot overlaps with ANY existing booking
+				const isOverlap = existingBookings.some((booking) => {
+					const bStart = toMin(booking.time);
+					const bEnd = bStart + booking.service.time;
+
+					// Overlap math: (StartA < EndB) AND (EndA > StartB)
+					return slotStart < bEnd && slotEnd > bStart;
+				});
+
+				if (!isOverlap) {
+					const h = Math.floor(current / 60);
+					const m = current % 60;
+					const value = `${h}:${m.toString().padStart(2, "0")}`;
+					availableSlots.push({ value: value, label: <p>{value}</p> });
 				}
 			}
 
-			setTimeOptions(newTimeStamps);
+			setTimeOptions(availableSlots);
 		};
 
-
-
 		getTimeIntervals();
-	}, [selectedDay.value, selectedService]);
+	}, [selectedDay, selectedService]);
 
 	// <================================================================>
 
@@ -201,84 +207,6 @@ function BookingPage() {
 		setDetails(e.target.value);
 	}
 
-	function handleTimeSelect(e) {
-		setTime({
-			value: e.currentTarget.dataset.value,
-			index: parseInt(e.currentTarget.dataset.index),
-		});
-	}
-
-	function handleDaySelect(e) {
-		setDay({
-			value: e.currentTarget.dataset.value,
-			index: parseInt(e.currentTarget.dataset.index),
-		});
-	}
-
-	function selectNext(e) {
-		if (e.currentTarget.className === "next d") {
-			if (selectedDay.value === "") {
-				setDay({
-					value: dayOptions[0].date,
-					index: 0,
-				});
-			} else if (selectedDay.index + 1 < dayOptions.length) {
-				const nextIndex = selectedDay.index + 1;
-				setDay({
-					value: dayOptions[nextIndex].date,
-					index: nextIndex,
-				});
-			}
-		}
-
-		if (e.currentTarget.className === "next t") {
-			if (selectedTime.value === "") {
-				setTime({
-					value: timeOptions[0],
-					index: 0,
-				});
-			} else if (selectedTime.index + 1 < timeOptions.length) {
-				const nextIndex = selectedTime.index + 1;
-				setTime({
-					value: timeOptions[nextIndex],
-					index: nextIndex,
-				});
-			}
-		}
-	}
-
-	function selectPrevious(e) {
-		if (e.currentTarget.className === "prev d") {
-			if (selectedDay.value === "") {
-				setDay({
-					value: dayOptions[0].date,
-					index: 0,
-				});
-			} else if (selectedDay.index - 1 >= 0) {
-				const nextIndex = selectedDay.index - 1;
-				setDay({
-					value: dayOptions[nextIndex].date,
-					index: nextIndex,
-				});
-			}
-		}
-
-		if (e.currentTarget.className === "prev t") {
-			if (selectedTime.value === "") {
-				setTime({
-					value: timeOptions[0],
-					index: 0,
-				});
-			} else if (selectedTime.index - 1 >= 0) {
-				const nextIndex = selectedTime.index - 1;
-				setTime({
-					value: timeOptions[nextIndex],
-					index: nextIndex,
-				});
-			}
-		}
-	}
-
 	function handleService(e) {
 		setService(e);
 	}
@@ -318,8 +246,8 @@ function BookingPage() {
 				price: selectedService.price,
 			},
 			details: _details,
-			day: selectedDay.value,
-			time: selectedTime.value,
+			day: selectedDay,
+			time: selectedTime,
 		};
 
 		try {
@@ -394,7 +322,7 @@ function BookingPage() {
 								onClick={() => handleService(s)}
 								key={s.name}
 							>
-								<img src={s.icon} />
+								<img src={s.imageURL} />
 								<p className="service-title">{s.name}</p>
 								<p className="info">{s.time + " min | " + s.price + " ron"}</p>
 							</div>
@@ -402,80 +330,8 @@ function BookingPage() {
 					</div>
 					{/* =========================================== */}
 					{/* >=====================< TIME AND DATE SELECTION <=======================< */}
-					<div
-						className="date select"
-						onMouseLeave={() => {
-							if (selectedDay.value === "") return;
-							document
-								.getElementsByClassName("option selected")[0]
-								.scrollIntoView({
-									behavior: "smooth",
-									inline: "center",
-								});
-						}}
-					>
-						<img className="icon" src={calendar_img} />
-						<img className="prev d" src={arrow} onClick={selectPrevious} />
-						<div className="options-ct">
-							{dayOptions.map((option, index) => (
-								<span
-									data-value={option.date}
-									data-index={index}
-									key={option.date}
-									onClick={handleDaySelect}
-									className={
-										selectedDay.value === option.date
-											? "option selected"
-											: "option"
-									}
-								>
-									<p>{option.date}</p>
-									<p>{option.weekday}</p>
-								</span>
-							))}
-						</div>
-						<img className="next d" src={arrow} onClick={selectNext} />
-					</div>
-					{/* =----------------------------------------------------------------------=  */}
-					<div
-						className="time select"
-						onMouseLeave={() => {
-							if (selectedTime.value === "") return;
-							document
-								.getElementsByClassName("option selected")[1]
-								.scrollIntoView({
-									behavior: "smooth",
-									inline: "center",
-								});
-						}}
-					>
-						<img className="icon" src={clock_img} />
-						<img className="prev t" src={arrow} onClick={selectPrevious} />
-						<div className="options-ct">
-							{selectedDay.value === "" ? (
-								<p className="no-day-selected">Selectează o zi</p>
-							) : timeOptions.length == 0 ? (
-								<p className="no-space-available">Nu mai sunt locuri disponibile</p>
-							) : (
-								timeOptions.map((option, index) => (
-									<span
-										data-value={option}
-										data-index={index}
-										key={option}
-										onClick={handleTimeSelect}
-										className={
-											selectedTime.value === option
-												? "option selected"
-												: "option"
-										}
-									>
-										<p>{option}</p>
-									</span>
-								))
-							)}
-						</div>
-						<img className="next t" src={arrow} onClick={selectNext} />
-					</div>
+					<Select options={dayOps} icon={calendar_img} onChange={setDay} />
+					<Select options={timeOptions} icon={clock_img} onChange={setTime} />
 					<div className="time-date-info">
 						<img src={info_img} />
 						<p>
@@ -514,7 +370,7 @@ function BookingPage() {
 					<b>Serviciul ales</b>
 					<p>{selectedService.name}</p>
 					<b>Data și ora</b>
-					<p>{selectedDay.value.toUpperCase() + " ora " + selectedTime.value}</p>
+					<p>{selectedDay.toUpperCase() + " ora " + selectedTime}</p>
 					<b>Detalii suplimentare</b>
 					<p>{_details}</p>
 

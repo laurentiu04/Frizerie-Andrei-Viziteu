@@ -14,6 +14,7 @@ const session = require("express-session");
 
 // Import the router file you created
 const bookingRoutes = require("./routes/bookingRoutes");
+const workInfoRoutes = require("./routes/adminEditRoutes")
 
 const app = express(); // Create express server
 
@@ -95,6 +96,7 @@ app.post("/api/login", (req, res, next) => {
 
 // >=============> Routes <=================<
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/work-info", workInfoRoutes);
 // >========================================<
 
 // ==== Prevent /admin acces if no login was made =====
@@ -108,7 +110,7 @@ app.get("/api/check-login", (req, res) => {
 	}
 });
 // ======================================================
-//
+
 // // >===============> SPA Catch-All <================<
 app.get(/.*/, (req, res) => {
 	res.sendFile(path.join(__dirname, "dist", "index.html"));

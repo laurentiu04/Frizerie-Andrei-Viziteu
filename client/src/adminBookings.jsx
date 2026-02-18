@@ -6,26 +6,51 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function AdminBookings() {
-	const [spinner, setSpinner] = useState(false);
+	const [dayOps, setDayOps] = useState(null);
 
-	let days = [];
-	const options = { day: "numeric", month: "short" };
+	useEffect(() => {
+		const fetchData = async () => {
+			const dateOptions = {
+				month: "short",
+				day: "numeric",
+				weekday: "long",
+			};
+
+			const freeDays = (await axios.get("/api/work-info/")).data.free_days;
+			const dayOptions = [];
+
+			for (var i = 0; i < 31; i++) {
+				const fullDate = new Date(
+					new Date().getTime() + i * (1000 * 60 * 60 * 24),
+				).toLocaleDateString("ro-RO", dateOptions);
+				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "");
+				const weekday = fullDate.split(",")[0];
+
+				if (weekday == "duminică") continue;
+				if (
+					freeDays != undefined &&
+					(freeDays.includes(date) ||
+						freeDays.includes(date + " " + new Date().getFullYear().toString()))
+				)
+					continue;
+
+				// console.log(date.substring(1, 7), date.length, freeDays[2].length);
+
+				dayOptions.push(date);
+			}
+			setDayOps(dayOptions);
+		};
+
+		fetchData();
+	}, []);
+
 	const [selectedDay, setSelectedDay] = useState([
-		new Date().toLocaleDateString("ro-RO", options).replace(".", ""),
-		0,
+		"",
+		-1,
 	]);
+
 	const [bookings, setBookings] = useState([]);
-
-	// >==========> Get all 31 days from the current one <===========<
-	const now = new Date();
-
-	for (let i = 0; i <= 31; i++) {
-		const d = new Date(now);
-		d.setDate(now.getDate() + i);
-		days.push(d.toLocaleDateString("ro-RO", options).replace(".", ""));
-	}
-	// <=============================================================>
-
+	
 	function handleDaySelect(e) {
 		const tagName = e.target.tagName.toLowerCase();
 		var day, index;
@@ -44,7 +69,7 @@ function AdminBookings() {
 				return;
 			}
 
-			day = days[index];
+			day = dayOps[index];
 		}
 
 		if (day == null) return;
@@ -64,14 +89,12 @@ function AdminBookings() {
 
 	useEffect(() => {
 		async function loadBookings() {
-			setSpinner(true);
 			setBookings([]);
 			const entries_data = await axios.get("/api/bookings", {
 				params: { day: selectedDay[0] },
 			});
 
 			if (entries_data) {
-				setSpinner(false);
 				setBookings(entries_data.data);
 			}
 		}
@@ -91,7 +114,7 @@ function AdminBookings() {
 							className={selectedDay[1] >= 27 ? "overlay hidden" : "overlay"}
 						></span>
 						<div className="day-slider-elems">
-							{days.map((day, index) => (
+							{dayOps != null ? dayOps.map((day, index) => (
 								<span
 									key={index}
 									data-value={day}
@@ -101,7 +124,7 @@ function AdminBookings() {
 								>
 									{day}
 								</span>
-							))}
+							)) : null}
 						</div>
 					</div>
 					<img src={arrow} className="next" onClick={handleDaySelect} />
@@ -122,7 +145,7 @@ function AdminBookings() {
 						{bookings.map((book, index) => (
 							<div className="grid-row" key={index}>
 								<p>{index + 1}</p>
-								<p>{book.name}</p>
+								<input placeholder={book.name}/>
 								<p>
 									{book.phone.substring(0, 4) +
 										" " +

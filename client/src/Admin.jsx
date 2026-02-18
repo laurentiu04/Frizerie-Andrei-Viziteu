@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./admin.css";
 import AdminBookings from "./adminBookings";
-import Logo from "./assets/Short_Logo.png";
+import AdminSchedule from "./adminSchedule";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
 // =====> Images imports <=====
 
+import Logo from "./assets/Short_Logo.png";
 import appointments_icon from "./assets/appointments-icon.svg";
 import schedule_icon from "./assets/schedule-icon.svg";
 import statistics_icon from "./assets/statistics-icon.svg";
@@ -102,6 +103,12 @@ function Admin() {
 					<>
 						<h1 className="tabName">PROGRAMĂRI</h1>
 						<AdminBookings />
+					</>
+					: null}
+					{currentTab === "edit_program" ?
+					<>
+						<h1 className="tabName">PROGRAM LUCRU</h1>
+						<AdminSchedule />
 					</>
 					: null}
 				</div>

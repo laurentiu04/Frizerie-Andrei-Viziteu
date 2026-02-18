@@ -16,9 +16,14 @@
 		"prod-preview": "npm run build && npm run start"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.1",
+		"@mui/material": "^7.3.7",
+		"@mui/x-date-pickers": "^8.27.0",
 		"axios": "^1.13.2",
 		"bcrypt": "^6.0.0",
 		"cors": "^2.8.5",
+		"dayjs": "^1.11.19",
 		"dotenv": "^17.2.3",
 		"express": "^5.2.1",
 		"express-flash": "^0.0.2",

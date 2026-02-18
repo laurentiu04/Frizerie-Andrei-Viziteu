@@ -44,7 +44,7 @@ body {
 
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 5rem 1fr;
+	grid-template-rows: 6rem 1fr;
 	width: 100%;
 	height: 100%;
 	box-sizing: border-box;
@@ -171,111 +171,11 @@ body {
 		box-shadow: 0.5rem 0.5rem 0px 0px #313b44;
 	}
 
-	.select {
-		display: flex;
-		flex-direction: row;
-		width: var(--selector_width);
-		height: var(--selector_height);
-		border: 1px solid #313b44;
-		border-radius: var(--border-radius);
-		margin: 0.25rem 0;
-		align-items: center;
-	}
-
-	.select img {
-		height: var(--field_icon_size);
-		padding: var(--medium_padding) var(--medium_padding);
-	}
-
-	.select .icon {
-		border-right: 1px solid #313b44;
-	}
-
-	.select .next {
-		transform: scaleX(-100%);
-	}
-
-	.select .next,
-	.select .prev {
-		cursor: pointer;
-		opacity: 0.5;
-	}
-
-	.select .next:hover,
-	.select .prev:hover {
-		opacity: 1;
-	}
-
-	.select .options-ct {
-		display: flex;
-		flex-direction: row;
-		overflow: auto;
-		width: 100%;
-	}
-
-	.select .options-ct::-webkit-scrollbar {
-		height: 4px;
-	}
-
-	.select .options-ct::-webkit-scrollbar-thumb {
-		width: 30px;
-		background: rgba(255, 255, 255, 0.1);
-		cursor: pointer;
-	}
-
-	.select .option {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: var(--xs_padding) var(--small_padding);
-		border-radius: var(--border-radius);
-		width: 2.55rem;
-		height: var(--input_height);
-	}
-
-	.select .option:hover p {
-		opacity: 1;
-	}
-
-	.select .option p {
-		margin: 0;
-		font-size: var(--font_size_option_title);
-		opacity: 0.3;
-		transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-		text-wrap: nowrap;
-		user-select: none;
-	}
-
-	.select .option:first-of-type {
-		padding-left: 0 !important;
-	}
-
-	.select .option p:last-of-type {
-		font-size: var(--font_size_option_sub);
-		color: var(--color_ligth_blue);
-		line-height: 0.8rem;
-	}
-
-	.select .option.selected p {
-		font-weight: 500;
-		opacity: 1;
-	}
-
-	.select.time .option {
-		padding: 0.3rem 0.5rem;
-	}
-
-	.select.time .option p {
-		color: white;
-		font-size: var(--font_size_option_title);
-		padding: 0.5rem 0rem;
-	}
-
-	.select.time .no-day-selected, .no-space-available {
-		color: #4e5d6b;
+	.select .option .subtitle {
+		font-size: 0.7em;
 		text-align: center;
-		width: 100%;
+		width: min-content;
+		line-height: 0.5rem;
 	}
 
 	.time-date-info {
@@ -500,5 +400,22 @@ body {
 		--field_icon_size: 0.8rem;
 
 		--border-radius: 1.2rem;
+
+		.select {
+			width: 18rem;
+			height: 2.5rem;
+		}
+		
+		.select .option {
+			padding: 0.2rem 0.7rem;
+		}
+
+		.select .option	p {
+			font-size: 0.9rem;
+		}
+
+		.select .option .subtitle {
+			font-size: 0.6rem;
+		}
 	}
 }
