@@ -48,10 +48,10 @@ function AdminSchedule() {
 	const [monthOps, setMonthOps] = useState(null);
 	const [dayOps, setDayOps] = useState(null);
 
-	const [year, setYear] = useState(null);
-	const [yearDisplay, showYear] = useState(false);
-	const [month, setMonth] = useState(null);
-	const [day, setDay] = useState(null);
+	const [year, setYear] = useState("");
+	const [yearToggle, showYear] = useState(true);
+	const [month, setMonth] = useState("");
+	const [day, setDay] = useState("");
 
 	const [freeDays, setFreeDays] = useState(null);
 	const [deletedFreeDays, setDeleted] = useState(null);
@@ -88,6 +88,15 @@ function AdminSchedule() {
 		setFreeDays(null);
 		setDeleted(null);
 		setUpdatedServices([]);
+		
+		for (let el of document.getElementsByClassName("name-input"))
+			el.value = "";
+
+		for (let el of document.getElementsByClassName("price-input"))
+			el.value = "";
+
+		for (let el of document.getElementsByClassName("time-input"))
+			el.value = "";
 	}
 
 	function handleStartTime() {
@@ -235,7 +244,7 @@ function AdminSchedule() {
 			const lastDayOfMonth = new Date(2026, monthIndex + 1, 0).getDate();
 
 			for (let i = 1; i <= lastDayOfMonth; i++) {
-				if (yearDisplay) {
+				if (yearToggle) {
 					if (
 						!currFreeDays.includes(
 							`${i} ${month}${year == null ? "" : " " + year}`,
@@ -252,7 +261,7 @@ function AdminSchedule() {
 		};
 
 		if (month != null) getDayOps();
-	}, [month, year, yearDisplay, freeDays, currentWorkData]);
+	}, [month, year, yearToggle, freeDays, currentWorkData]);
 
 	useEffect(() => {
 		const checkNewEdit = () => {
@@ -419,7 +428,7 @@ function AdminSchedule() {
 							<div className="select-day">
 								<div style={{ display: "inline-flex", alignItems: "center" }}>
 									<Select
-										className={yearDisplay == false ? " disable" : null}
+										className={yearToggle == false ? " disable" : null}
 										options={yearOps}
 										onChange={(val) => {
 											setYear(val);
@@ -429,8 +438,8 @@ function AdminSchedule() {
 									<input
 										className="displayYear"
 										type="checkbox"
-										onClick={(ev) => {
-											showYear(ev.target.checked);
+										onClick={() => {
+											showYear(!yearToggle);
 										}}
 									></input>
 								</div>
@@ -458,16 +467,17 @@ function AdminSchedule() {
 										freeDays != null
 											? setFreeDays((prev) =>
 													prev.concat(
-														`${day} ${month}${year == null ? "" : " " + year}`,
+														`${day} ${month}${!yearToggle || year == "" ? "" : " " + year}`,
 													),
 												)
 											: setFreeDays([
-													`${day} ${month}${year == null ? "" : " " + year}`,
+													`${day} ${month}${!yearToggle || year == "" ? "" : " " + year}`,
 												]);
 										setAddDayMenu(false);
-										setDay(null);
-										setMonth(null);
-										setYear(null);
+										setDay("");
+										setMonth("");
+										setYear("");
+										showYear(true);
 									}}
 								>
 									<p>Ok</p>
@@ -476,9 +486,10 @@ function AdminSchedule() {
 									className="cancel"
 									onClick={() => {
 										setAddDayMenu(false);
-										setDay(null);
-										setMonth(null);
-										setYear(null);
+										setDay("");
+										setMonth("");
+										setYear("");
+										showYear(true);
 									}}
 								>
 									<p>X</p>
