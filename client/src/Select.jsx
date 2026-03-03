@@ -1,9 +1,41 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./select.css";
 import arrowLeft from "./assets/arrow.png";
 import arrowRight from "./assets/arrow-right.png";
 
-function Select({ options, icon, onChange, className }) {
+function Select({ options, icon, onChange, className, selected }) {
+	const containerRef = useRef(null);
+	const [selectedOption, setSelectedOption] = useState({
+		value: "",
+		index: -1,
+	});
+
+	useEffect(() => {
+		const scrollSelectedIntoView = () => {
+			if (selected && options) {
+				
+				const index = options.findIndex((el) => el.value === selected);
+				setSelectedOption({
+					value: selected,
+					index: index,
+				});
+			}
+		};
+
+		scrollSelectedIntoView();
+	}, [selected, options]);
+	useEffect(() => {
+		const scrollElement = () => {
+			containerRef?.current.querySelector(".option.selected")?.scrollIntoView({
+				behavior: "smooth",
+				block: "nearest", // 'nearest' is usually better for vertical dropdowns
+				inline: "center",
+			});
+		};
+
+		if (options) scrollElement();
+	}, [selectedOption, options]);
+
 	const handleMouseLeave = () => {
 		// 1. Check if there is even a selection to scroll to
 		if (!selectedOption || selectedOption.value === "") return;
@@ -21,11 +53,6 @@ function Select({ options, icon, onChange, className }) {
 			}
 		}
 	};
-
-	const [selectedOption, setSelectedOption] = useState({
-		value: "",
-		index: -1,
-	});
 
 	const handleArrowClick = (direction) => {
 		if (!options || options.length === 0) return;
@@ -46,11 +73,10 @@ function Select({ options, icon, onChange, className }) {
 
 		// Trigger the scroll behavior immediately after arrow click
 		// We use a small timeout to ensure the DOM has updated the 'selected' class
-		setTimeout(handleMouseLeave, 20);
 
 		if (onChange) {
-			onChange(nextOption.value);			
-		}	
+			onChange(nextOption.value);
+		}
 	};
 
 	function handleOptionSelect(e) {
@@ -65,11 +91,7 @@ function Select({ options, icon, onChange, className }) {
 		if (onChange) {
 			onChange(newValue);
 		}
-
-		setTimeout(handleMouseLeave, 20);
-	};
-
-	const containerRef = useRef(null);
+	}
 
 	return (
 		<>
@@ -79,7 +101,11 @@ function Select({ options, icon, onChange, className }) {
 				onMouseLeave={handleMouseLeave}
 			>
 				{icon ? <img className="icon" src={icon} /> : null}
-				<img className="arrow"  src={arrowLeft} onClick={() => handleArrowClick(-1)}/>
+				<img
+					className="arrow"
+					src={arrowLeft}
+					onClick={() => handleArrowClick(-1)}
+				/>
 				<div className="options-ct">
 					{options
 						? options.map((option, index) => (
@@ -99,7 +125,11 @@ function Select({ options, icon, onChange, className }) {
 							))
 						: null}
 				</div>
-				<img className="arrow" src={arrowRight} onClick={() => handleArrowClick(1)}/>
+				<img
+					className="arrow"
+					src={arrowRight}
+					onClick={() => handleArrowClick(1)}
+				/>
 			</div>
 		</>
 	);

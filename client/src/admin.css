@@ -54,9 +54,11 @@
 }
 
 .main-ct {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1;
+	justify-content: center;
 	min-height: 0;
 	min-width: 0;
 	box-sizing: border-box;

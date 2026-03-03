@@ -11,6 +11,7 @@ import scissors_img from "./assets/scissors.png";
 import delete_img from "./assets/delete.png";
 
 function AdminSchedule() {
+	const [reloadVar, setReloadVar] = useState(-1);
 	function restrictLetter(e) {
 		// Permitem tastele de control (Backspace, Delete, Tab, Escape, Enter, Săgeți)
 		const isControlKey = [
@@ -68,7 +69,6 @@ function AdminSchedule() {
 				if (workData.data == null) console.log("no work data found");
 				else {
 					setCurrentWorkData(workData.data);
-					console.log("Loaded data:", workData.data);
 				}
 
 				setDataLoaded(true);
@@ -78,7 +78,7 @@ function AdminSchedule() {
 		};
 
 		getWorkData();
-	}, []);
+	}, [reloadVar]);
 
 	function setVarToDefault() {
 		start_hour_ref.current.value = "";
@@ -340,13 +340,12 @@ function AdminSchedule() {
 			changes.services = newServiceDetails;
 		}
 
-		console.log(changes);
-
 		try {
 			const response = await axios.post("/api/work-info", changes);
 			if (response.status == 200) {
 				setSaving(false);
-				window.location.reload();
+				setReloadVar(reloadVar*-1);
+				setVarToDefault();
 			}
 		} catch (error) {
 			console.log(error);

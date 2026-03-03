@@ -4,10 +4,6 @@ import Navbar from "./Navbar";
 import "./bookingPage.css";
 
 // >===============> IMAGE IMPORT <================<
-import classic_cut_img from "./assets/classic-cut.svg";
-import modern_cut_img from "./assets/modern-cut.svg";
-import beard_cut_img from "./assets/beard-cut.svg";
-import beard_and_hair_img from "./assets/beard_and_hair.svg";
 import barber_img from "./assets/barber_img.png";
 import calendar_img from "./assets/calendar.png";
 import clock_img from "./assets/clock.png";
@@ -86,86 +82,79 @@ function BookingPage() {
 
 	// <================================================================>
 
-	// ~~~~ Scroll into view selected date option ~~~~
+useEffect(() => {
+    const getTimeIntervals = async () => {
+        const dbData = (await axios.get("/api/work-info")).data;
+        const openHour = parseInt(dbData.start_hour);
+        const closeHour = parseInt(dbData.end_hour);
+        const timeInterval = 10; 
+        const serviceDuration = selectedService.time;
 
-	useEffect(() => {
-		const selectedElement =
-			document.getElementsByClassName("option selected")[0];
+        const bookings = await axios.get("/api/bookings", {
+            params: { day: selectedDay },
+        });
+        const existingBookings = bookings.data;
 
-		if (selectedElement)
-			selectedElement.scrollIntoView({
-				behavior: "smooth",
-				inline: "center",
-			});
-	}, [selectedDay.value]);
+        const availableSlots = [];
 
-	// ~~~~ Scroll into view selected time option ~~~~
+        const toMin = (timeStr) => {
+            const [h, m] = timeStr.split(":").map(Number);
+            return h * 60 + m;
+        };
 
-	useEffect(() => {
-		const selectedElement =
-			document.getElementsByClassName("option selected")[1];
+        const workStartMin = openHour * 60;
+        const endMin = closeHour * 60;
 
-		if (selectedElement)
-			selectedElement.scrollIntoView({
-				behavior: "smooth",
-				inline: "center",
-			});
-	}, [selectedTime.value]);
+        // --- LOGICA PENTRU DATA CURENTĂ ---
+        const now = new Date();
+        
+        // Generăm formatul "d mmm" (ex: "4 feb") pentru ziua de azi
+        const day = now.getDate();
+        const monthNames = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"];
+        const month = monthNames[now.getMonth()];
+        const todayFormatted = `${day} ${month}`;
 
-	useEffect(() => {
-		const getTimeIntervals = async () => {
-			const dbData = (await axios.get("/api/work-info")).data;
-			const openHour = parseInt(dbData.start_hour);
-			const closeHour = parseInt(dbData.end_hour);
-			const timeInterval = 10; // The step (9:00, 9:10, 9:20...)
-			const serviceDuration = selectedService.time; // e.g., 15 mins
+        let startMin = workStartMin;
 
-			const bookings = await axios.get("/api/bookings", {
-				params: { day: selectedDay },
-			});
-			const existingBookings = bookings.data; // Expecting [{time: "09:00", service: {time: 30}}, ...]
+        // Dacă ziua selectată este astăzi, ajustăm ora de pornire
+        if (selectedDay === todayFormatted) {
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            
+            // Dacă suntem deja în timpul programului, începem de la "acum"
+            // Opțional: rotunjim la următorul interval de 10 minute
+            if (currentMinutes > workStartMin) {
+                startMin = Math.ceil(currentMinutes / timeInterval) * timeInterval;
+            }
+        }
+        // ----------------------------------
 
-			const availableSlots = [];
+        for (
+            let current = startMin;
+            current <= endMin - serviceDuration;
+            current += timeInterval
+        ) {
+            const slotStart = current;
+            const slotEnd = current + serviceDuration;
 
-			// Helper to convert "HH:mm" to total minutes from midnight
-			const toMin = (timeStr) => {
-				const [h, m] = timeStr.split(":").map(Number);
-				return h * 60 + m;
-			};
+            const isOverlap = existingBookings.some((booking) => {
+                const bStart = toMin(booking.time);
+                const bEnd = bStart + booking.service.time;
+                return slotStart < bEnd && slotEnd > bStart;
+            });
 
-			const startMin = openHour * 60;
-			const endMin = closeHour * 60;
+            if (!isOverlap) {
+                const h = Math.floor(current / 60);
+                const m = current % 60;
+                const value = `${h}:${m.toString().padStart(2, "0")}`;
+                availableSlots.push({ value: value, label: <p>{value}</p> });
+            }
+        }
 
-			for (
-				let current = startMin;
-				current <= endMin - serviceDuration;
-				current += timeInterval
-			) {
-				const slotStart = current;
-				const slotEnd = current + serviceDuration;
+        setTimeOptions(availableSlots);
+    };
 
-				// Check if this slot overlaps with ANY existing booking
-				const isOverlap = existingBookings.some((booking) => {
-					const bStart = toMin(booking.time);
-					const bEnd = bStart + booking.service.time;
-
-					// Overlap math: (StartA < EndB) AND (EndA > StartB)
-					return slotStart < bEnd && slotEnd > bStart;
-				});
-
-				if (!isOverlap) {
-					const h = Math.floor(current / 60);
-					const m = current % 60;
-					const value = `${h}:${m.toString().padStart(2, "0")}`;
-					availableSlots.push({ value: value, label: <p>{value}</p> });
-				}
-			}
-
-			setTimeOptions(availableSlots);
-		};
-
-		getTimeIntervals();
-	}, [selectedDay, selectedService]);
+    getTimeIntervals();
+}, [selectedDay, selectedService]);
 
 	// <================================================================>
 
@@ -223,12 +212,12 @@ function BookingPage() {
 			return;
 		}
 
-		if (selectedDay.value == "") {
+		if (selectedDay == "") {
 			setWarning("Nu ai ales o dată pentru programare!");
 			return;
 		}
 
-		if (selectedTime.value == "") {
+		if (selectedTime == "") {
 			setWarning("Nu ai ales o oră pentru programare!");
 			return;
 		}
@@ -261,7 +250,7 @@ function BookingPage() {
 				"❌ Error saving booking:",
 				error.response ? error.response.data : error.message,
 			);
-			alert("Failed to save booking. Please try again.");
+			alert("Programare esuată! Încercati din nou.");
 		}
 	}
 

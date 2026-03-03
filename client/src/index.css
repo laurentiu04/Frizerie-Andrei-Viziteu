@@ -30,6 +30,44 @@ html::-webkit-scrollbar {
 * {
 	font-family: Outfit;
 	font-weight: 300;
+
+	/****************> Variables <*************/
+
+	--font_size_placeholder: 1rem;
+
+	--font_size_title: 3rem;
+	--font_size_subtitle: 1rem;
+
+	--font_size_option_title: 0.9rem;
+	--font_size_option_sub: 0.7rem;
+
+	--font_size_service_title: 1rem;
+	--font_size_service_sub: 0.8rem;
+
+	--option-card_img: 2.5rem;
+	--option-card_padding: 0.7rem;
+
+	--input_height: min-content;
+	--input_width: 13rem;
+
+	--selector_width: 20rem;
+	--selector_height: 3rem;
+
+	--xs_padding: 0.25rem;
+	--small_padding: 0.5rem;
+	--medium_padding: 1rem;
+	--big_padding: 2rem;
+	
+	--field_icon_size: 1rem;
+
+	--border-radius: 1.5rem;
+
+	--color_white: #ffffff;
+	--color_ligth_blue: #66839d;
+	--color_yellow: #fdcc62;
+	
+
+	/******************************************/
 }
 
 b {
