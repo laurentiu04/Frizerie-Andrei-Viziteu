@@ -3,10 +3,7 @@ import "./adminBookings.css";
 // >=========> IMG IMPORT <==========<
 import arrow from "./assets/arrow.png";
 import edit from "./assets/edit.png";
-import cancel_edit from "./assets/close.png";
-import accept_edit from "./assets/check.png";
 import Select from "./Select";
-import delete_icon from "./assets/delete.png";
 // <=================================>
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -143,61 +140,101 @@ function AdminBookings() {
 	}, [currentRowEdited, bookings]);
 
 	useEffect(() => {
+		const toMin = (timeStr) => {
+			if (!timeStr) return 0;
+			const [h, m] = timeStr.split(":").map(Number);
+			return h * 60 + m;
+		};
+
+		const formatTime = (totalMinutes) => {
+			const h = Math.floor(totalMinutes / 60);
+			const m = totalMinutes % 60;
+			return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+		};
+
 		const getEditTimeOptions = async () => {
-			const dbData = (await axios.get("/api/work-info/")).data; // Retrieve db data for work info
+			try {
+				setEditTimeOps([]);
+				const dbData = (await axios.get("/api/work-info")).data;
+				const openHour = parseInt(dbData.start_hour);
+				const closeHour = parseInt(dbData.end_hour);
+				const gridInterval = 45;
+				const serviceDuration = Number(editServiceSelect.time);
 
-			const openHour = parseInt(dbData.start_hour);
-			const closeHour = parseInt(dbData.end_hour);
-			const timeInterval = 10; // The step (9:00, 9:10, 9:20...)
-			const serviceDuration = editServiceSelect.time; // e.g., 15 mins
-
-			const bookingsResponse = await axios.get("/api/bookings", {
-				params: { day: editDaySelect },
-			});
-			const existingBookings = bookingsResponse.data; // Expecting [{time: "09:00", service: {time: 30}}, ...]
-
-			const availableSlots = [];
-
-			// Helper to convert "HH:mm" to total minutes from midnight
-			const toMin = (timeStr) => {
-				const [h, m] = timeStr.split(":").map(Number);
-				return h * 60 + m;
-			};
-
-			const startMin = openHour * 60;
-			const endMin = closeHour * 60;
-
-			for (
-				let current = startMin;
-				current <= endMin - serviceDuration;
-				current += timeInterval
-			) {
-				const slotStart = current;
-				const slotEnd = current + serviceDuration;
-
-				// Check if this slot overlaps with ANY existing booking
-				const isOverlap = existingBookings.some((booking) => {
-					if (booking.time == bookings[currentRowEdited].time) return false;
-
-					const bStart = toMin(booking.time);
-					const bEnd = bStart + booking.service.time;
-
-					// Overlap math: (StartA < EndB) AND (EndA > StartB)
-					return slotStart < bEnd && slotEnd > bStart;
+				const bookingsResponse = await axios.get("/api/bookings", {
+					params: { day: editDaySelect },
 				});
+				// 1. Pregătire date
+				const existingBookings = bookingsResponse.data
+					.filter((b) => b.id === editID)
+					.map((b) => {
+						const start = toMin(b.time);
+						return {
+							...b,
+							startMin: start,
+							endMin: start + Number(b.service?.time || 0),
+						};
+					})
+					.sort((a, b) => a.startMin - b.startMin);
 
-				if (!isOverlap) {
-					const h = Math.floor(current / 60);
-					const m = current % 60;
-					const value = `${h}:${m.toString().padStart(2, "0")}`;
-					availableSlots.push({ value: value, label: <p>{value}</p> });
+				const workStartMin = openHour * 60;
+				const workEndMin = closeHour * 60;
+				const availableMinutes = new Set();
+
+				// 2. Parcurgere Grid
+				for (
+					let gridStart = workStartMin;
+					gridStart <= workEndMin - serviceDuration;
+					gridStart += gridInterval
+				) {
+					const gridEnd = gridStart + gridInterval;
+
+					const bookingsInGrid = existingBookings.filter(
+						(b) => b.startMin < gridEnd && b.endMin > gridStart,
+					);
+
+					let potentialStart;
+
+					if (bookingsInGrid.length > 0) {
+						// Dacă avem programări în acest interval de 45 min, încercăm să lipim de ultima
+						potentialStart = bookingsInGrid.at(-1).endMin;
+
+						// Verificăm dacă mai rămâne timp măcar pentru serviciul curent în acest grid
+						// (Aceasta e regula ta de bază pentru a nu sări peste grilă)
+						if (gridEnd - potentialStart < serviceDuration) continue;
+					} else {
+						// Dacă grid-ul e gol, ora de start este începutul grid-ului
+						potentialStart = gridStart;
+					}
+
+					// --- REZOLVAREA OVERLAPPING-ULUI ---
+					// Verificăm dacă intervalul nostru se ciocnește de ORICE altă programare din zi
+					const hasOverlap = existingBookings.some((b) => {
+						const potentialEnd = potentialStart + serviceDuration;
+						// Verificăm coliziunea: noul start e înainte de un final existent
+						// ȘI noul final e după un start existent
+						return potentialStart < b.endMin && potentialEnd > b.startMin;
+					});
+
+					if (!hasOverlap) {
+						availableMinutes.add(potentialStart);
+					}
 				}
-			}
 
-			setEditTimeOps(availableSlots);
-			if (!availableSlots.some((e) => e.value === editTimeSelect)) {
-				console.log(editTimeSelect);
-				setEditTimeSelect("");
+				// 3. Formatare finală
+				const finalSlots = [...availableMinutes]
+					.sort((a, b) => a - b)
+					.map((a) => {
+						const formattedTime = formatTime(a);
+						return { value: formattedTime, label: <p>{formattedTime}</p> };
+					});
+
+				setEditTimeOps(finalSlots);
+				if (!finalSlots.some((e) => e.value === editTimeSelect)) {
+					setEditTimeSelect("");
+				}
+			} catch (error) {
+				console.error("Eroare la calcul overlapping:", error);
 			}
 		};
 
@@ -208,6 +245,7 @@ function AdminBookings() {
 		editDaySelect,
 		editServiceSelect,
 		editTimeSelect,
+		editID
 	]);
 
 	// <========================================================>
@@ -238,14 +276,12 @@ function AdminBookings() {
 		} else {
 			try {
 				// Trimitem cererea DELETE către URL-ul specific cu ID-ul la final
-				const response = await axios.delete(
-					`api/bookings/${id}`,
-				);
+				const response = await axios.delete(`api/bookings/${id}`);
 
 				if (response.status === 200) {
 					console.log("Șters cu succes:", response.data.msg);
 					alert("Stergere efectuată cu succes!");
-					setReloadVar(reloadVar*-1);
+					setReloadVar(reloadVar * -1);
 					cancelEdit();
 				}
 			} catch (error) {
@@ -255,7 +291,7 @@ function AdminBookings() {
 				);
 				alert("Nu s-a putut șterge programarea.");
 			}
-		};
+		}
 	};
 
 	const saveEdit = async (el) => {
@@ -282,8 +318,6 @@ function AdminBookings() {
 			alert("Editare efectuată cu succes!");
 			setReloadVar(reloadVar * -1);
 			cancelEdit();
-
-			return <>HELOOOOO</>;
 		} catch (error) {
 			console.error(
 				"❌ Error saving booking:",

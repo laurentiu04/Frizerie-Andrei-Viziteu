@@ -82,79 +82,103 @@ function BookingPage() {
 
 	// <================================================================>
 
-useEffect(() => {
-    const getTimeIntervals = async () => {
-        const dbData = (await axios.get("/api/work-info")).data;
-        const openHour = parseInt(dbData.start_hour);
-        const closeHour = parseInt(dbData.end_hour);
-        const timeInterval = 10; 
-        const serviceDuration = selectedService.time;
+	useEffect(() => {
+		const toMin = (timeStr) => {
+			if (!timeStr) return 0;
+			const [h, m] = timeStr.split(":").map(Number);
+			return h * 60 + m;
+		};
 
-        const bookings = await axios.get("/api/bookings", {
-            params: { day: selectedDay },
-        });
-        const existingBookings = bookings.data;
+		const formatTime = (totalMinutes) => {
+			const h = Math.floor(totalMinutes / 60);
+			const m = totalMinutes % 60;
+			return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+		};
 
-        const availableSlots = [];
+		const getTimeIntervals = async () => {
+			try {
+				const dbData = (await axios.get("/api/work-info")).data;
+				const openHour = parseInt(dbData.start_hour);
+				const closeHour = parseInt(dbData.end_hour);
+				const gridInterval = 45;
+				const serviceDuration = Number(selectedService.time);
 
-        const toMin = (timeStr) => {
-            const [h, m] = timeStr.split(":").map(Number);
-            return h * 60 + m;
-        };
+				const bookingsResponse = await axios.get("/api/bookings", {
+					params: { day: selectedDay },
+				});
 
-        const workStartMin = openHour * 60;
-        const endMin = closeHour * 60;
+				// 1. Pregătire date
+				const existingBookings = bookingsResponse.data
+					.map((b) => {
+						const start = toMin(b.time);
+						return {
+							...b,
+							startMin: start,
+							endMin: start + Number(b.service?.time || 0),
+						};
+					})
+					.sort((a, b) => a.startMin - b.startMin);
 
-        // --- LOGICA PENTRU DATA CURENTĂ ---
-        const now = new Date();
-        
-        // Generăm formatul "d mmm" (ex: "4 feb") pentru ziua de azi
-        const day = now.getDate();
-        const monthNames = ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"];
-        const month = monthNames[now.getMonth()];
-        const todayFormatted = `${day} ${month}`;
+				const workStartMin = openHour * 60;
+				const workEndMin = closeHour * 60;
+				const availableMinutes = new Set();
 
-        let startMin = workStartMin;
+				// 2. Parcurgere Grid
+				for (
+					let gridStart = workStartMin;
+					gridStart <= workEndMin - serviceDuration;
+					gridStart += gridInterval
+				) {
+					const gridEnd = gridStart + gridInterval;
 
-        // Dacă ziua selectată este astăzi, ajustăm ora de pornire
-        if (selectedDay === todayFormatted) {
-            const currentMinutes = now.getHours() * 60 + now.getMinutes();
-            
-            // Dacă suntem deja în timpul programului, începem de la "acum"
-            // Opțional: rotunjim la următorul interval de 10 minute
-            if (currentMinutes > workStartMin) {
-                startMin = Math.ceil(currentMinutes / timeInterval) * timeInterval;
-            }
-        }
-        // ----------------------------------
+					const bookingsInGrid = existingBookings.filter(
+						(b) => b.startMin < gridEnd && b.endMin > gridStart,
+					);
 
-        for (
-            let current = startMin;
-            current <= endMin - serviceDuration;
-            current += timeInterval
-        ) {
-            const slotStart = current;
-            const slotEnd = current + serviceDuration;
+					let potentialStart;
 
-            const isOverlap = existingBookings.some((booking) => {
-                const bStart = toMin(booking.time);
-                const bEnd = bStart + booking.service.time;
-                return slotStart < bEnd && slotEnd > bStart;
-            });
+					if (bookingsInGrid.length > 0) {
+						// Dacă avem programări în acest interval de 45 min, încercăm să lipim de ultima
+						potentialStart = bookingsInGrid.at(-1).endMin;
 
-            if (!isOverlap) {
-                const h = Math.floor(current / 60);
-                const m = current % 60;
-                const value = `${h}:${m.toString().padStart(2, "0")}`;
-                availableSlots.push({ value: value, label: <p>{value}</p> });
-            }
-        }
+						// Verificăm dacă mai rămâne timp măcar pentru serviciul curent în acest grid
+						// (Aceasta e regula ta de bază pentru a nu sări peste grilă)
+						if (gridEnd - potentialStart < serviceDuration) continue;
+					} else {
+						// Dacă grid-ul e gol, ora de start este începutul grid-ului
+						potentialStart = gridStart;
+					}
 
-        setTimeOptions(availableSlots);
-    };
+					// --- REZOLVAREA OVERLAPPING-ULUI ---
+					// Verificăm dacă intervalul nostru se ciocnește de ORICE altă programare din zi
+					const hasOverlap = existingBookings.some((b) => {
+						const potentialEnd = potentialStart + serviceDuration;
+						// Verificăm coliziunea: noul start e înainte de un final existent
+						// ȘI noul final e după un start existent
+						return potentialStart < b.endMin && potentialEnd > b.startMin;
+					});
 
-    getTimeIntervals();
-}, [selectedDay, selectedService]);
+					if (!hasOverlap) {
+						availableMinutes.add(potentialStart);
+					}
+				}
+
+				// 3. Formatare finală
+				const finalSlots = [...availableMinutes]
+					.sort((a, b) => a - b)
+					.map((a) => {
+						const formattedTime = formatTime(a);
+						return { value: formattedTime, label: <p>{formattedTime}</p> };
+					});
+
+				setTimeOptions(finalSlots);
+			} catch (error) {
+				console.error("Eroare la calcul overlapping:", error);
+			}
+		};
+
+		selectedDay && selectedService ? getTimeIntervals() : null;
+	}, [selectedDay, selectedService]);
 
 	// <================================================================>
 
