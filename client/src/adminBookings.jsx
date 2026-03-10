@@ -164,9 +164,11 @@ function AdminBookings() {
 				const bookingsResponse = await axios.get("/api/bookings", {
 					params: { day: editDaySelect },
 				});
+
 				// 1. Pregătire date
+				// EXCLUDEM programarea curentă (editID) din verificări pentru a-i putea vedea ora în listă
 				const existingBookings = bookingsResponse.data
-					.filter((b) => b.id === editID)
+					.filter((b) => String(b._id) !== String(editID))
 					.map((b) => {
 						const start = toMin(b.time);
 						return {
@@ -180,6 +182,26 @@ function AdminBookings() {
 				const workStartMin = openHour * 60;
 				const workEndMin = closeHour * 60;
 				const availableMinutes = new Set();
+
+				// --- LOGICA PENTRU TIMPUL CURENT ---
+				const now = new Date();
+				const monthNames = [
+					"ian",
+					"feb",
+					"mar",
+					"apr",
+					"mai",
+					"iun",
+					"iul",
+					"aug",
+					"sep",
+					"oct",
+					"noi",
+					"dec",
+				];
+				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
+				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+				// -----------------------------------
 
 				// 2. Parcurgere Grid
 				for (
@@ -196,23 +218,14 @@ function AdminBookings() {
 					let potentialStart;
 
 					if (bookingsInGrid.length > 0) {
-						// Dacă avem programări în acest interval de 45 min, încercăm să lipim de ultima
 						potentialStart = bookingsInGrid.at(-1).endMin;
-
-						// Verificăm dacă mai rămâne timp măcar pentru serviciul curent în acest grid
-						// (Aceasta e regula ta de bază pentru a nu sări peste grilă)
 						if (gridEnd - potentialStart < serviceDuration) continue;
 					} else {
-						// Dacă grid-ul e gol, ora de start este începutul grid-ului
 						potentialStart = gridStart;
 					}
 
-					// --- REZOLVAREA OVERLAPPING-ULUI ---
-					// Verificăm dacă intervalul nostru se ciocnește de ORICE altă programare din zi
 					const hasOverlap = existingBookings.some((b) => {
 						const potentialEnd = potentialStart + serviceDuration;
-						// Verificăm coliziunea: noul start e înainte de un final existent
-						// ȘI noul final e după un start existent
 						return potentialStart < b.endMin && potentialEnd > b.startMin;
 					});
 
@@ -221,15 +234,23 @@ function AdminBookings() {
 					}
 				}
 
-				// 3. Formatare finală
+				// 3. Formatare finală + FILTRARE ORE TRECUTE
 				const finalSlots = [...availableMinutes]
 					.sort((a, b) => a - b)
+					.filter((min) => {
+						// Dacă ziua editată este azi, nu arătăm orele trecute
+						if (editDaySelect === todayStr) {
+							return min > currentTotalMinutes + 5; // +5 minute marjă
+						}
+						return true;
+					})
 					.map((a) => {
 						const formattedTime = formatTime(a);
 						return { value: formattedTime, label: <p>{formattedTime}</p> };
 					});
 
 				setEditTimeOps(finalSlots);
+
 				if (!finalSlots.some((e) => e.value === editTimeSelect)) {
 					setEditTimeSelect("");
 				}
@@ -245,7 +266,7 @@ function AdminBookings() {
 		editDaySelect,
 		editServiceSelect,
 		editTimeSelect,
-		editID
+		editID,
 	]);
 
 	// <========================================================>

@@ -123,6 +123,26 @@ function BookingPage() {
 				const workEndMin = closeHour * 60;
 				const availableMinutes = new Set();
 
+				// --- LOGICA PENTRU ORA CURENTĂ ---
+				const now = new Date();
+				const monthNames = [
+					"ian",
+					"feb",
+					"mar",
+					"apr",
+					"mai",
+					"iun",
+					"iul",
+					"aug",
+					"sep",
+					"oct",
+					"noi",
+					"dec",
+				];
+				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
+				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+				// ---------------------------------
+
 				// 2. Parcurgere Grid
 				for (
 					let gridStart = workStartMin;
@@ -138,23 +158,14 @@ function BookingPage() {
 					let potentialStart;
 
 					if (bookingsInGrid.length > 0) {
-						// Dacă avem programări în acest interval de 45 min, încercăm să lipim de ultima
 						potentialStart = bookingsInGrid.at(-1).endMin;
-
-						// Verificăm dacă mai rămâne timp măcar pentru serviciul curent în acest grid
-						// (Aceasta e regula ta de bază pentru a nu sări peste grilă)
 						if (gridEnd - potentialStart < serviceDuration) continue;
 					} else {
-						// Dacă grid-ul e gol, ora de start este începutul grid-ului
 						potentialStart = gridStart;
 					}
 
-					// --- REZOLVAREA OVERLAPPING-ULUI ---
-					// Verificăm dacă intervalul nostru se ciocnește de ORICE altă programare din zi
 					const hasOverlap = existingBookings.some((b) => {
 						const potentialEnd = potentialStart + serviceDuration;
-						// Verificăm coliziunea: noul start e înainte de un final existent
-						// ȘI noul final e după un start existent
 						return potentialStart < b.endMin && potentialEnd > b.startMin;
 					});
 
@@ -163,9 +174,16 @@ function BookingPage() {
 					}
 				}
 
-				// 3. Formatare finală
+				// 3. Formatare finală + FILTRARE ORE TRECUTE
 				const finalSlots = [...availableMinutes]
 					.sort((a, b) => a - b)
+					.filter((min) => {
+						// Dacă e ziua de azi, eliminăm orele care au trecut deja (plus o marjă de 5-10 min dacă vrei)
+						if (selectedDay === todayStr) {
+							return min > currentTotalMinutes + 10; // +10 minute ca să nu rezerve fix în clipa asta
+						}
+						return true;
+					})
 					.map((a) => {
 						const formattedTime = formatTime(a);
 						return { value: formattedTime, label: <p>{formattedTime}</p> };
