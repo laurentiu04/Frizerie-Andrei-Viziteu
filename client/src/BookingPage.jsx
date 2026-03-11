@@ -100,14 +100,14 @@ function BookingPage() {
 				const dbData = (await axios.get("/api/work-info")).data;
 				const openHour = parseInt(dbData.start_hour);
 				const closeHour = parseInt(dbData.end_hour);
-				const gridInterval = 45;
+
+				const gridInterval = 15;
 				const serviceDuration = Number(selectedService.time);
 
 				const bookingsResponse = await axios.get("/api/bookings", {
 					params: { day: selectedDay },
 				});
 
-				// 1. Pregătire date
 				const existingBookings = bookingsResponse.data
 					.map((b) => {
 						const start = toMin(b.time);
@@ -121,77 +121,55 @@ function BookingPage() {
 
 				const workStartMin = openHour * 60;
 				const workEndMin = closeHour * 60;
-				const availableMinutes = new Set();
 
-				// --- LOGICA PENTRU ORA CURENTĂ ---
-				const now = new Date();
-				const monthNames = [
-					"ian",
-					"feb",
-					"mar",
-					"apr",
-					"mai",
-					"iun",
-					"iul",
-					"aug",
-					"sep",
-					"oct",
-					"noi",
-					"dec",
-				];
-				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
-				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-				// ---------------------------------
+				const possibleSlots = [];
 
-				// 2. Parcurgere Grid
-				for (
-					let gridStart = workStartMin;
-					gridStart <= workEndMin - serviceDuration;
-					gridStart += gridInterval
-				) {
-					const gridEnd = gridStart + gridInterval;
+				let currentTime = workStartMin;
 
-					const bookingsInGrid = existingBookings.filter(
-						(b) => b.startMin < gridEnd && b.endMin > gridStart,
+				while (currentTime <= workEndMin - serviceDuration) {
+					const slotStart = currentTime;
+					const slotEnd = slotStart + serviceDuration;
+
+					if (slotEnd > workEndMin) break;
+
+					const hasOverlap = existingBookings.some(
+						(b) => slotStart < b.endMin && slotEnd > b.startMin,
 					);
 
-					let potentialStart;
-
-					if (bookingsInGrid.length > 0) {
-						potentialStart = bookingsInGrid.at(-1).endMin;
-						if (gridEnd - potentialStart < serviceDuration) continue;
-					} else {
-						potentialStart = gridStart;
-					}
-
-					const hasOverlap = existingBookings.some((b) => {
-						const potentialEnd = potentialStart + serviceDuration;
-						return potentialStart < b.endMin && potentialEnd > b.startMin;
-					});
-
 					if (!hasOverlap) {
-						availableMinutes.add(potentialStart);
+						const prevBooking = [...existingBookings]
+							.reverse()
+							.find((b) => b.endMin <= slotStart);
+
+						const nextBooking = existingBookings.find(
+							(b) => b.startMin >= slotEnd,
+						);
+
+						const gapBefore = prevBooking
+							? slotStart - prevBooking.endMin
+							: slotStart - workStartMin;
+
+						const gapAfter = nextBooking
+							? nextBooking.startMin - slotEnd
+							: workEndMin - slotEnd;
+
+						// REGULA DIN ALGORITMUL PYTHON
+						if (gapBefore !== 15 && gapAfter !== 15) {
+							possibleSlots.push(slotStart);
+						}
 					}
+
+					currentTime += gridInterval;
 				}
 
-				// 3. Formatare finală + FILTRARE ORE TRECUTE
-				const finalSlots = [...availableMinutes]
-					.sort((a, b) => a - b)
-					.filter((min) => {
-						// Dacă e ziua de azi, eliminăm orele care au trecut deja (plus o marjă de 5-10 min dacă vrei)
-						if (selectedDay === todayStr) {
-							return min > currentTotalMinutes + 10; // +10 minute ca să nu rezerve fix în clipa asta
-						}
-						return true;
-					})
-					.map((a) => {
-						const formattedTime = formatTime(a);
-						return { value: formattedTime, label: <p>{formattedTime}</p> };
-					});
+				const finalSlots = possibleSlots.map((min) => ({
+					value: formatTime(min),
+					label: <p>{formatTime(min)}</p>,
+				}));
 
 				setTimeOptions(finalSlots);
 			} catch (error) {
-				console.error("Eroare la calcul overlapping:", error);
+				console.error("Eroare la generarea sloturilor:", error);
 			}
 		};
 
