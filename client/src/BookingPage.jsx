@@ -124,6 +124,27 @@ function BookingPage() {
 
 				const possibleSlots = [];
 
+				// ---- CALCUL TIMP CURENT ----
+				const now = new Date();
+				const monthNames = [
+					"ian",
+					"feb",
+					"mar",
+					"apr",
+					"mai",
+					"iun",
+					"iul",
+					"aug",
+					"sep",
+					"oct",
+					"noi",
+					"dec",
+				];
+
+				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
+				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+				// -----------------------------
+
 				let currentTime = workStartMin;
 
 				while (currentTime <= workEndMin - serviceDuration) {
@@ -153,7 +174,6 @@ function BookingPage() {
 							? nextBooking.startMin - slotEnd
 							: workEndMin - slotEnd;
 
-						// REGULA DIN ALGORITMUL PYTHON
 						if (gapBefore !== 15 && gapAfter !== 15) {
 							possibleSlots.push(slotStart);
 						}
@@ -162,10 +182,19 @@ function BookingPage() {
 					currentTime += gridInterval;
 				}
 
-				const finalSlots = possibleSlots.map((min) => ({
-					value: formatTime(min),
-					label: <p>{formatTime(min)}</p>,
-				}));
+				const finalSlots = possibleSlots
+					.sort((a, b) => a - b)
+					.filter((min) => {
+						// dacă ziua selectată este azi → eliminăm orele trecute
+						if (selectedDay === todayStr) {
+							return min > currentTotalMinutes + 5; // mic buffer
+						}
+						return true;
+					})
+					.map((min) => ({
+						value: formatTime(min),
+						label: <p>{formatTime(min)}</p>,
+					}));
 
 				setTimeOptions(finalSlots);
 			} catch (error) {
