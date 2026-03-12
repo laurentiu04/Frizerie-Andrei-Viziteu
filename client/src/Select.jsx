@@ -3,7 +3,7 @@ import "./select.css";
 import arrowLeft from "./assets/arrow.png";
 import arrowRight from "./assets/arrow-right.png";
 
-function Select({ options, icon, onChange, className, selected }) {
+function Select({ options, icon, onChange, className, selected, onEmptyMessage }) {
 	const containerRef = useRef(null);
 	const [selectedOption, setSelectedOption] = useState({
 		value: "",
@@ -107,6 +107,9 @@ function Select({ options, icon, onChange, className, selected }) {
 					onClick={() => handleArrowClick(-1)}
 				/>
 				<div className="options-ct">
+					{(options && options.length == 0)
+					&&
+					<p>{onEmptyMessage}</p>}
 					{options
 						? options.map((option, index) => (
 								<span

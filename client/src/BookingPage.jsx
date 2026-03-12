@@ -30,7 +30,7 @@ function BookingPage() {
 	const [selectedTime, setTime] = useState("");
 	const [selectedDay, setDay] = useState("");
 	const [dayOps, setDayOps] = useState(null);
-	const [timeOptions, setTimeOptions] = useState([]);
+	const [timeOptions, setTimeOptions] = useState(null);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -369,7 +369,7 @@ function BookingPage() {
 					{/* =========================================== */}
 					{/* >=====================< TIME AND DATE SELECTION <=======================< */}
 					<Select options={dayOps} icon={calendar_img} onChange={setDay} />
-					<Select options={timeOptions} icon={clock_img} onChange={setTime} />
+					<Select options={timeOptions} icon={clock_img} onChange={setTime} onEmptyMessage="Nu mai sunt locuri pentru acest serviciu."/>
 					<div className="time-date-info">
 						<img src={info_img} />
 						<p>
