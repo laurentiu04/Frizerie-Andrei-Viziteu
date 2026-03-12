@@ -315,7 +315,6 @@ function AdminBookings() {
 				const response = await axios.delete(`api/bookings/${id}`);
 
 				if (response.status === 200) {
-					console.log("Șters cu succes:", response.data.msg);
 					alert("Stergere efectuată cu succes!");
 					setReloadVar(reloadVar * -1);
 					cancelEdit();

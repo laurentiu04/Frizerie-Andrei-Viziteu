@@ -7,8 +7,6 @@ const bcrypt = require("bcrypt");
 const Admin_ = require("./admin-model.js");
 const Admin = Admin_(mongoose);
 
-console.log(__dirname);
-
 const app = express();
 
 app.use(express.json());

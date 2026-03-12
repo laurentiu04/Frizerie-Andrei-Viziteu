@@ -290,10 +290,8 @@ function BookingPage() {
 
 		try {
 			// 2. Send the POST request to your running server endpoint
-			const response = await axios.post("/api/bookings", bookingData);
+			await axios.post("/api/bookings", bookingData);
 
-			console.log("✅ Booking successfully saved:", response.data);
-			alert("Programare confirmată!");
 		} catch (error) {
 			console.error(
 				"❌ Error saving booking:",
