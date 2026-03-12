@@ -7,6 +7,11 @@ function initialize(passport, Admin) {
 		new LocalStrategy(
 			{ usernameField: "user" },
 			async (username, password, done) => {
+				// Force username to be a string to prevent object injection
+				if (typeof username !== "string") {
+					return done(null, false, { message: "Invalid input" });
+				}
+
 				try {
 					const user = await Admin.findOne({ user: username });
 					if (!user) return done(null, false, { message: "User inexistent" });
