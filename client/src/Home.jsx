@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import Fundal from "./assets/Fundal.png";
+import Fundal from "./assets/Fundal.webp";
 import "./home.css";
 
 function Home() {

@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import "./bookingPage.css";
 
 // >===============> IMAGE IMPORT <================<
-import barber_img from "./assets/barber_img.png";
+import barber_img from "./assets/barber_img.webp";
 import calendar_img from "./assets/calendar.png";
 import clock_img from "./assets/clock.png";
 import info_img from "./assets/info.png";
