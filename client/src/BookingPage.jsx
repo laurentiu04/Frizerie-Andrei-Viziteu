@@ -10,11 +10,9 @@ import clock_img from "./assets/clock.png";
 import info_img from "./assets/info.png";
 // <===============================================>
 
-import { useNavigate } from "react-router";
 import axios from "axios";
 
 function BookingPage() {
-	const navigate = useNavigate();
 
 	const [_name, setName] = useState("");
 	const [_phone, setPhone] = useState("");
@@ -272,6 +270,7 @@ function BookingPage() {
 		}
 
 		setSubmit(true);
+		saveBooking();
 	}
 
 	async function saveBooking() {
@@ -299,15 +298,6 @@ function BookingPage() {
 			);
 			alert("Programare esuată! Încercati din nou.");
 		}
-	}
-
-	function handleConfirm() {
-		saveBooking();
-		navigate("/");
-	}
-
-	function handleCancel() {
-		setSubmit(false);
 	}
 
 	return (
@@ -398,7 +388,7 @@ function BookingPage() {
 				<img src={barber_img} className="bg-img" />
 
 				<div className={submitted ? "booking-confirm show" : "booking-confirm"}>
-					<h1>DETALII PROGRAMARE</h1>
+					<h1>Programare realizată <br/>cu succes!</h1>
 					<b>Nume</b>
 					<p>{_name}</p>
 					<b>Telefon</b>
@@ -409,13 +399,6 @@ function BookingPage() {
 					<p>{selectedDay.toUpperCase() + " ora " + selectedTime}</p>
 					<b>Detalii suplimentare</b>
 					<p>{_details}</p>
-
-					<span className="confirm-button" onClick={handleConfirm}>
-						CONFIRMĂ
-					</span>
-					<span className="cancel-button" onClick={handleCancel}>
-						ANULEAZĂ
-					</span>
 				</div>
 			</div>
 		</>

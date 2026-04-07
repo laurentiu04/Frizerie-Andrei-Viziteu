@@ -14,7 +14,7 @@ function Navbar() {
 	return (
 		<>
 			<div className="navbar">
-				<img id="logo" src={Logo} />
+				<Link to="/"><img id="logo" src={Logo} /></Link>
 				<img className="meniu-mobile" src={MenuIcon} onClick={toggleMenu} />
 				<div className={show_menu ? "menu show" : "menu"}>
 					<div className="links">
