@@ -269,7 +269,6 @@ function BookingPage() {
 			return;
 		}
 
-		setSubmit(true);
 		saveBooking();
 	}
 
@@ -290,7 +289,7 @@ function BookingPage() {
 		try {
 			// 2. Send the POST request to your running server endpoint
 			await axios.post("/api/bookings", bookingData);
-
+				setSubmit(true);
 		} catch (error) {
 			console.error(
 				"❌ Error saving booking:",
@@ -317,7 +316,7 @@ function BookingPage() {
 						name="full-name"
 						maxLength={25}
 						placeholder="Nume și prenume"
-						onBlur={handleName}
+						onChange={handleName}
 						onKeyDown={(event) => {
 							if (/[0-9]/.test(event.key)) {
 								event.preventDefault();
@@ -331,7 +330,7 @@ function BookingPage() {
 						name="phone-number"
 						maxLength={10}
 						placeholder="Număr de telefon"
-						onBlur={handlePhone}
+						onChange={handlePhone}
 						onKeyDown={restrictLetter}
 						required={true}
 					/>
