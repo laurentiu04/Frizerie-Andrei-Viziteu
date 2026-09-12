@@ -45,13 +45,16 @@ function BookingPage() {
 			const freeDays = dbData.free_days;
 			const dayOptions = [];
 
+			console.log(freeDays)
+			
 			for (var i = 0; i < 31; i++) {
 				const fullDate = new Date(
 					new Date().getTime() + i * (1000 * 60 * 60 * 24),
 				).toLocaleDateString("ro-RO", dateOptions);
-				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "");
+				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "").replace("sept", "sep");
+				console.log(date)
 				const weekday = fullDate.split(",")[0];
-
+				
 				if (weekday == "duminică") continue;
 				if (
 					freeDays != undefined &&
