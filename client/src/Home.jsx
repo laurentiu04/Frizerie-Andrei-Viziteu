@@ -7,14 +7,14 @@ function Home() {
 	return (
 		<>
       <div className="home-container">
-				{/* <Navbar />*/}
+				<Navbar />
 				<div className="fundal-mask">
 					<img id="fundal" src={Fundal} />
 				</div>
         <span id="overlay"></span>
-        <h1 className="mentenanta">PAGINA ESTE IN MENTENANTA! REVENIM CAT DE CURANT POSIBIL!</h1>
+        {/* <h1 className="mentenanta">PAGINA ESTE IN MENTENANTA! REVENIM CAT DE CURANT POSIBIL!</h1>*/}
 
-				{/* <h1>
+				<h1>
 					<b>BARBER</b>
 					ANDREI VIZITEU
 				</h1>
@@ -25,10 +25,10 @@ function Home() {
 				<h1>
 					<b>STIL</b>
 					PERSONALIZAT
-				</h1>*/}
-				{/* <span className="reserveButton">
+				</h1>
+				<span className="reserveButton">
 					<Link to="/programare">PROGRAMEAZĂ-TE</Link>
-				</span>*/}
+				</span>
 			</div>
 		</>
 	);

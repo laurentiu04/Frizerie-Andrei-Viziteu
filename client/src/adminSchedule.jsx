@@ -47,7 +47,8 @@ function AdminSchedule() {
 	// >>-------> free days vars <---------<<
 	const [yearOps, setYearOps] = useState(null);
 	const [monthOps, setMonthOps] = useState(null);
-	const [dayOps, setDayOps] = useState(null);
+  const [dayOps, setDayOps] = useState(null);
+	const [filer, setFiler] = useState(null)
 
 	const [year, setYear] = useState("");
 	const [yearToggle, showYear] = useState(true);
@@ -499,7 +500,17 @@ function AdminSchedule() {
 						<span className="add-day" onClick={() => setAddDayMenu(true)}>
 							<img className="icon" src={plus_img} />
 						</span>
-					)}
+            )}
+            {/* <div className="filter">
+              <Select
+                options={monthOps}
+               	onChange={(val) => {
+											setFiler(val);
+											setTimeout(null, 10);
+										}}
+              />
+              {filer && <span onClick={() => { setFiler(null); setTimeout(null, 10) }}>Clear</span>}
+            </div>*/}
 					<div className="freeDays">
 						{currentWorkData.free_days?.map((day) => (
 							<span
