@@ -12,7 +12,7 @@ function Home() {
 					<img id="fundal" src={Fundal} />
 				</div>
         <span id="overlay"></span>
-        <h1 className="mentenanta">PAGINA ESTE IN MENTENANTA! REVENOM CAT DE CURANT POSIBIL!</h1>
+        <h1 className="mentenanta">PAGINA ESTE IN MENTENANTA! REVENIM CAT DE CURANT POSIBIL!</h1>
 
 				{/* <h1>
 					<b>BARBER</b>
