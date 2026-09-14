@@ -46,7 +46,7 @@ function AdminBookings() {
 				const fullDate = new Date(
 					new Date().getTime() + i * (1000 * 60 * 60 * 24),
 				).toLocaleDateString("ro-RO", dateOptions);
-				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "");
+				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "").replace("sept", "sep");
 				const weekday = fullDate.split(",")[0];
 
 				if (weekday == "duminică") continue;
