@@ -201,7 +201,7 @@ function AdminSchedule() {
 				"aug",
 				"sep",
 				"oct",
-				"noi",
+				"nov",
 				"dec",
 			];
 
@@ -230,7 +230,7 @@ function AdminSchedule() {
 				"aug",
 				"sep",
 				"oct",
-				"noi",
+				"nov",
 				"dec",
 			];
 
