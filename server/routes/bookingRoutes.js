@@ -6,8 +6,12 @@ const path = require("path");
 // GET /api/bookings (Read)
 router.get("/", async (req, res) => {
 	try {
-		const day = req.query.day;
-		const bookings = await Booking.find({ day: day });
+    const day = req.query.day;
+    let bookings = null;
+    if (!day) 
+        bookings = await Booking.find();
+      else
+        bookings = await Booking.find({ day: day });
 		res.json(bookings);
 	} catch (err) {
 		res.status(500).send("Server Error");

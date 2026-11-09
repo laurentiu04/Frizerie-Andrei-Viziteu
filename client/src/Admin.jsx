@@ -60,8 +60,8 @@ function Admin() {
 	}, [navigate, loggedIn]); // Re-run when the selected day changes
 
 	// Prevent the rest of the component from rendering while checking auth
-	if (loading) {
-		return <div>Loading...</div>;
+  if (loading) {
+    return <img className="loadingIcon" src={Logo} />;
 	}
 
 	return (

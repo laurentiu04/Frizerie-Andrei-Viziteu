@@ -48,7 +48,6 @@ function AdminSchedule() {
 	const [yearOps, setYearOps] = useState(null);
 	const [monthOps, setMonthOps] = useState(null);
   const [dayOps, setDayOps] = useState(null);
-	const [filer, setFiler] = useState(null)
 
 	const [year, setYear] = useState("");
 	const [yearToggle, showYear] = useState(true);
@@ -428,7 +427,7 @@ function AdminSchedule() {
 							<div className="select-day">
 								<div style={{ display: "inline-flex", alignItems: "center" }}>
 									<Select
-										className={yearToggle == false ? " disable" : null}
+										className={yearToggle == false && "disable"}
 										options={yearOps}
 										onChange={(val) => {
 											setYear(val);

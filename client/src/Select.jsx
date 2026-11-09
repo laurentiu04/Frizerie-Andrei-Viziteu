@@ -12,18 +12,17 @@ function Select({ options, icon, onChange, className, selected, onEmptyMessage }
 
 	useEffect(() => {
 		const scrollSelectedIntoView = () => {
-			if (selected && options) {
-				
+      if (selected && options) {
 				const index = options.findIndex((el) => el.value === selected);
 				setSelectedOption({
 					value: selected,
 					index: index,
-				});
+        });
 			}
 		};
-
 		scrollSelectedIntoView();
-	}, [selected, options]);
+  }, [selected, options]);
+	
 	useEffect(() => {
 		const scrollElement = () => {
 			containerRef?.current.querySelector(".option.selected")?.scrollIntoView({
@@ -33,8 +32,24 @@ function Select({ options, icon, onChange, className, selected, onEmptyMessage }
 			});
 		};
 
-		if (options) scrollElement();
-	}, [selectedOption, options]);
+    if (options) scrollElement();
+  }, [selectedOption, options]);
+
+  useEffect(() => {
+    const unselectOption = () => {
+      if (selected && options) {
+        const index = options.findIndex((el) => el.value === selected);
+				setSelectedOption({
+					value: selected,
+					index: index,
+            });
+      } else if (options) {
+        setSelectedOption({value: "", index: -1});
+      }
+    }
+
+    unselectOption();
+	}, [options, selected])
 
 	const handleMouseLeave = () => {
 		// 1. Check if there is even a selection to scroll to
@@ -70,9 +85,6 @@ function Select({ options, icon, onChange, className, selected, onEmptyMessage }
 			value: nextOption.value,
 			index: nextIndex,
 		});
-
-		// Trigger the scroll behavior immediately after arrow click
-		// We use a small timeout to ensure the DOM has updated the 'selected' class
 
 		if (onChange) {
 			onChange(nextOption.value);

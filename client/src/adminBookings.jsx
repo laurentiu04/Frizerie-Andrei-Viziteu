@@ -1,20 +1,20 @@
 import "./adminBookings.css";
 
 // >=========> IMG IMPORT <==========<
-import arrow from "./assets/arrow.png";
+import loading from "./assets/loading.svg"
 import edit from "./assets/edit.png";
 import Select from "./Select";
 // <=================================>
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getAvailableBookingSlots, getBookingDates, getBookingsFor } from "./DBUtils";
 
 function AdminBookings() {
-	const [reloadVar, setReloadVar] = useState(-1);
+  const [reloadVar, setReloadVar] = useState(-1);
+  const [loadingFlag, setLoading] = useState(false);
 	const [dayOps, setDayOps] = useState(null);
 
 	const [currentRowEdited, setCurrentEdited] = useState(-1);
-
-	const [editDayOps, setEditDayOps] = useState(null);
 	const [editDaySelect, setEditDaySelect] = useState(null);
 
 	const [editID, setEditID] = useState("");
@@ -30,39 +30,14 @@ function AdminBookings() {
 
 	const [showEditWindow, setShowEditWindow] = useState(false);
 
-	// >===================> Day options for booking viewing <=============<
+	// >===================> Day options for booking viewing <=================<
 	useEffect(() => {
 		const fetchData = async () => {
-			const dateOptions = {
-				month: "short",
-				day: "numeric",
-				weekday: "long",
-			};
 
-			const freeDays = (await axios.get("/api/work-info/")).data.free_days;
-			const dayOptions = [];
-
-			for (var i = 0; i < 31; i++) {
-				const fullDate = new Date(
-					new Date().getTime() + i * (1000 * 60 * 60 * 24),
-				).toLocaleDateString("ro-RO", dateOptions);
-				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "").replace("sept", "sep");
-				const weekday = fullDate.split(",")[0];
-
-				if (weekday == "duminică") continue;
-				if (
-					freeDays != undefined &&
-					(freeDays.includes(date) ||
-						freeDays.includes(date + " " + new Date().getFullYear().toString()))
-				)
-					continue;
-
-				// console.log(date.substring(1, 7), date.length, freeDays[2].length);
-
-				dayOptions.push(date);
-			}
-			setDayOps(dayOptions);
-			setSelectedDay([dayOptions[0], 0]);
+      const dates = await getBookingDates();
+			setDayOps(dates);
+      setSelectedDay(dates[0].value);
+      setTimeout(null, 10)
 		};
 
 		fetchData();
@@ -86,208 +61,73 @@ function AdminBookings() {
 	};
 
 	// >=================> Bookings loading for selected day <===============<
-	useEffect(() => {
-		async function loadBookings() {
-			setBookings([]);
-			const entries_data = await axios.get("/api/bookings", {
-				params: { day: selectedDay[0] },
-			});
+useEffect(() => {
+  let cancelled = false;
 
-			if (entries_data) {
-				setBookings(
-					entries_data.data.sort((a, b) => {
-						return toMin(a.time) - toMin(b.time);
-					}),
-				);
-			}
-		}
+  async function loadBookings() {
+    setBookings([]);
+    setLoading(true);
 
-		loadBookings();
-	}, [selectedDay, reloadVar]);
+    try {
+      const entries_data = await getBookingsFor(selectedDay);
+      if (cancelled) return;
+
+      if (entries_data) {
+        setBookings(
+          [...entries_data].sort((a, b) => toMin(a.time) - toMin(b.time)),
+        );
+      }
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
+  }
+
+  loadBookings();
+
+  return () => {
+    cancelled = true;
+  };
+}, [selectedDay, reloadVar]);
 	// <=================================================================>
 
 	// >===================> Edit options loading <======================<
 	useEffect(() => {
-		const getEditDayOptions = async () => {
+		const getServiceOps = async () => {
 			const dbData = (await axios.get("/api/work-info/")).data; // Retrieve db data for work info
 
 			setEditServiceOps(dbData.services); // Set Service Ops
-
-			const dateOptions = {
-				month: "short",
-				day: "numeric",
-				weekday: "long",
-			};
-
-			const freeDays = dbData.free_days;
-			const dayOptions = [];
-
-			for (var i = 0; i < 31; i++) {
-				const fullDate = new Date(
-					new Date().getTime() + i * (1000 * 60 * 60 * 24),
-				).toLocaleDateString("ro-RO", dateOptions);
-				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "");
-				const weekday = fullDate.split(",")[0];
-
-				if (weekday == "duminică") continue;
-				if (
-					freeDays != undefined &&
-					(freeDays.includes(date) ||
-						freeDays.includes(date + " " + new Date().getFullYear().toString()))
-				)
-					continue;
-
-				// console.log(date.substring(1, 7), date.length, freeDays[2].length);
-
-				dayOptions.push({
-					value: date,
-					label: (
-						<>
-							<p>{date}</p> <p className="subtitle">{weekday}</p>
-						</>
-					),
-				});
-			}
-			setEditDayOps(dayOptions);
 		};
 
-		if (currentRowEdited != -1) getEditDayOptions();
+		if (currentRowEdited != -1) getServiceOps();
 	}, [currentRowEdited, bookings]);
 
 	useEffect(() => {
 		const getEditTimeOptions = async () => {
-			try {
-				setEditTimeOps([]);
+      setEditTimeOps([])
+      const hour_slots = await getAvailableBookingSlots(editServiceSelect, editDaySelect).then(
+        
+      );
 
-				const dbData = (await axios.get("/api/work-info")).data;
-				const openHour = parseInt(dbData.start_hour);
-				const closeHour = parseInt(dbData.end_hour);
-
-				const gridInterval = 15;
-				const serviceDuration = Number(editServiceSelect.time);
-
-				const bookingsResponse = await axios.get("/api/bookings", {
-					params: { day: editDaySelect },
-				});
-
-				// EXCLUD programarea curentă
-				const existingBookings = bookingsResponse.data
-					.filter((b) => String(b._id) !== String(editID))
-					.map((b) => {
-						const start = toMin(b.time);
-						return {
-							...b,
-							startMin: start,
-							endMin: start + Number(b.service?.time || 0),
-						};
-					})
-					.sort((a, b) => a.startMin - b.startMin);
-
-				const workStartMin = openHour * 60;
-				const workEndMin = closeHour * 60;
-
-				const possibleSlots = [];
-
-				// --- TIME CHECK (pentru azi) ---
-				const now = new Date();
-				const monthNames = [
-					"ian",
-					"feb",
-					"mar",
-					"apr",
-					"mai",
-					"iun",
-					"iul",
-					"aug",
-					"sep",
-					"oct",
-					"noi",
-					"dec",
-				];
-
-				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
-				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-				// --------------------------------
-
-				let currentTime = workStartMin;
-
-				while (currentTime <= workEndMin - serviceDuration) {
-					const slotStart = currentTime;
-					const slotEnd = slotStart + serviceDuration;
-
-					if (slotEnd > workEndMin) break;
-
-					// verificare overlap
-					const hasOverlap = existingBookings.some(
-						(b) => slotStart < b.endMin && slotEnd > b.startMin,
-					);
-
-					if (!hasOverlap) {
-						const prevBooking = [...existingBookings]
-							.reverse()
-							.find((b) => b.endMin <= slotStart);
-
-						const nextBooking = existingBookings.find(
-							(b) => b.startMin >= slotEnd,
-						);
-
-						const gapBefore = prevBooking
-							? slotStart - prevBooking.endMin
-							: slotStart - workStartMin;
-
-						const gapAfter = nextBooking
-							? nextBooking.startMin - slotEnd
-							: workEndMin - slotEnd;
-
-						// REGULA ALGORITMULUI
-						if (gapBefore !== 15 && gapAfter !== 15) {
-							possibleSlots.push(slotStart);
-						}
-					}
-
-					currentTime += gridInterval;
-				}
-
-				const finalSlots = possibleSlots
-					.sort((a, b) => a - b)
-					.filter((min) => {
-						if (editDaySelect === todayStr) {
-							return min > currentTotalMinutes + 5;
-						}
-						return true;
-					})
-					.map((a) => {
-						const formattedTime = formatTime(a);
-						return {
-							value: formattedTime,
-							label: <p>{formattedTime}</p>,
-						};
-					});
-
-				setEditTimeOps(finalSlots);
-
-				if (!finalSlots.some((e) => e.value === editTimeSelect)) {
-					setEditTimeSelect("");
-				}
-			} catch (error) {
-				console.error("Eroare la generarea sloturilor edit:", error);
-			}
+      const final_slots = hour_slots.map((a) => ({
+        value: formatTime(a),
+        label: <p>{formatTime(a)}</p>
+        })
+      );
+      
+      setEditTimeOps(final_slots)
 		};
 
 		if (currentRowEdited != -1) getEditTimeOptions();
 	}, [
-		currentRowEdited,
-		bookings,
-		editDaySelect,
-		editServiceSelect,
-		editTimeSelect,
-		editID,
+    currentRowEdited,
+    editDaySelect,
+		editServiceSelect
 	]);
 
 	// <========================================================>
 
 	const setToEdit = (index) => {
-		const currentData = bookings[index];
+    const currentData = bookings[index];
 		setEditID(currentData._id);
 		setEditName(currentData.name);
 		setEditPhone(currentData.phone);
@@ -296,7 +136,8 @@ function AdminBookings() {
 		setEditTimeSelect(currentData.time);
 		setEditServiceSelect(currentData.service);
 		setCurrentEdited(index);
-		setTimeout(() => setShowEditWindow(true), 350);
+    setTimeout(() => setShowEditWindow(true), 400);
+
 	};
 
 	const cancelEdit = () => {
@@ -363,71 +204,13 @@ function AdminBookings() {
 		}
 	};
 
-	function handleDaySelect(e) {
-		const tagName = e.target.tagName.toLowerCase();
-		var day, index;
-
-		if (tagName === "span") {
-			day = e.currentTarget.dataset.value;
-			index = e.currentTarget.dataset.index;
-		} else {
-			const iconName = e.target.className;
-
-			if (iconName === "next" && selectedDay[1] < 31) {
-				index = parseInt(selectedDay[1]) + 1;
-			} else if (iconName === "previous" && selectedDay[1] > 0) {
-				index = parseInt(selectedDay[1]) - 1;
-			} else {
-				return;
-			}
-
-			day = dayOps[index];
-		}
-
-		if (day == null) return;
-		setSelectedDay([day, index]);
-
-		setTimeout(() => {
-			const slider = document.querySelector(".day-slider-elems");
-			if (slider && slider.children[index]) {
-				const selected = slider.children[index];
-				selected.scrollIntoView({
-					inline: "start",
-					behavior: "smooth",
-				});
-			}
-		}, 0);
-	}
-
 	return (
 		<>
 			<div className="bookings-ct">
-				<div className="day-selector">
 					{/* >===========================================================< */}
-					<img src={arrow} className="previous" onClick={handleDaySelect} />
-
 					<div className="day-slider-ct">
-						<span
-							className={selectedDay[1] >= 23 ? "overlay hidden" : "overlay"}
-						></span>
-						<div className="day-slider-elems">
-							{dayOps != null
-								? dayOps.map((day, index) => (
-										<span
-											key={index}
-											data-value={day}
-											data-index={index}
-											className={selectedDay[0] === day ? "selected-day" : ""}
-											onClick={handleDaySelect}
-										>
-											{day}
-										</span>
-									))
-								: null}
-						</div>
+						<Select options={dayOps} selected={selectedDay} onChange={setSelectedDay}/>
 					</div>
-					<img src={arrow} className="next" onClick={handleDaySelect} />
-				</div>{" "}
 				{/* <====================================================================================> */}
 				<div className="booklist-ct">
 					<div className="grid-headers">
@@ -440,7 +223,8 @@ function AdminBookings() {
 						<p>Creat la</p>
 						<p>Edit</p>
 					</div>
-					<div className="bookings-list">
+          <div className="bookings-list">
+            {loadingFlag && <img className="bookingsLoadingAnim" src={ loading} />}
 						{bookings.map((book, index) => (
 							<div className="grid-row" key={index}>
 								<p>{index + 1}</p>
@@ -532,7 +316,7 @@ function AdminBookings() {
 								))}
 						</div>
 						<Select
-							options={editDayOps}
+							options={dayOps}
 							selected={editDaySelect}
 							onChange={setEditDaySelect}
 						/>
@@ -543,7 +327,8 @@ function AdminBookings() {
 						/>
 						<input
 							defaultValue={editDetails}
-							onChange={(ev) => setEditDetails(ev.currentTarget.value)}
+              onChange={(ev) => setEditDetails(ev.currentTarget.value)}
+							placeholder="Detalii suplimentare"
 						/>
 						<div className="actions">
 							<div

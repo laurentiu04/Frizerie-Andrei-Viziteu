@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Admin from "./Admin";
+import Services from "./Services"
 import AdminLogin from "./AdminLogin";
 import axios from "axios";
 import { useState } from "react";
@@ -15,6 +16,7 @@ function App() {
 				<Route path="/programare" element={<BookingPage />} />
 				<Route path="/admin" element={<Admin />} />
 				<Route path="/admin-login" element={<AdminLogin />} />
+				<Route path="/servicii" element={<Services />} />
 			</Routes>
 		</>
 	);

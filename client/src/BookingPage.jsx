@@ -11,6 +11,8 @@ import info_img from "./assets/info.png";
 // <===============================================>
 
 import axios from "axios";
+import { formatTime, getAvailableBookingSlots, getBookingDates} from "./DBUtils";
+import { color } from "@mui/system";
 
 function BookingPage() {
 
@@ -36,45 +38,8 @@ function BookingPage() {
 
 			setServicesData(dbData.services);
 
-			const dateOptions = {
-				month: "short",
-				day: "numeric",
-				weekday: "long",
-			};
-
-			const freeDays = dbData.free_days;
-			const dayOptions = [];
-
-			console.log(freeDays)
-			
-			for (var i = 0; i < 31; i++) {
-				const fullDate = new Date(
-					new Date().getTime() + i * (1000 * 60 * 60 * 24),
-				).toLocaleDateString("ro-RO", dateOptions);
-				const date = fullDate.split(",")[1].replace(".", "").replace(" ", "").replace("sept", "sep");
-				console.log(date)
-				const weekday = fullDate.split(",")[0];
-				
-				if (weekday == "duminică") continue;
-				if (
-					freeDays != undefined &&
-					(freeDays.includes(date) ||
-						freeDays.includes(date + " " + new Date().getFullYear().toString()))
-				)
-					continue;
-
-				// console.log(date.substring(1, 7), date.length, freeDays[2].length);
-
-				dayOptions.push({
-					value: date,
-					label: (
-						<>
-							<p>{date}</p> <p className="subtitle">{weekday}</p>
-						</>
-					),
-				});
-			}
-			setDayOps(dayOptions);
+      const dates = await getBookingDates();
+			setDayOps(dates);
 		};
 
 		fetchData();
@@ -84,127 +49,29 @@ function BookingPage() {
 	// <================================================================>
 
 	useEffect(() => {
-		const toMin = (timeStr) => {
-			if (!timeStr) return 0;
-			const [h, m] = timeStr.split(":").map(Number);
-			return h * 60 + m;
-		};
 
-		const formatTime = (totalMinutes) => {
-			const h = Math.floor(totalMinutes / 60);
-			const m = totalMinutes % 60;
-			return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-		};
-
-		const getTimeIntervals = async () => {
-			try {
-				const dbData = (await axios.get("/api/work-info")).data;
-				const openHour = parseInt(dbData.start_hour);
-				const closeHour = parseInt(dbData.end_hour);
-
-				const gridInterval = 15;
-				const serviceDuration = Number(selectedService.time);
-
-				const bookingsResponse = await axios.get("/api/bookings", {
-					params: { day: selectedDay },
-				});
-
-				const existingBookings = bookingsResponse.data
-					.map((b) => {
-						const start = toMin(b.time);
-						return {
-							...b,
-							startMin: start,
-							endMin: start + Number(b.service?.time || 0),
-						};
-					})
-					.sort((a, b) => a.startMin - b.startMin);
-
-				const workStartMin = openHour * 60;
-				const workEndMin = closeHour * 60;
-
-				const possibleSlots = [];
-
-				// ---- CALCUL TIMP CURENT ----
-				const now = new Date();
-				const monthNames = [
-					"ian",
-					"feb",
-					"mar",
-					"apr",
-					"mai",
-					"iun",
-					"iul",
-					"aug",
-					"sep",
-					"oct",
-					"noi",
-					"dec",
-				];
-
-				const todayStr = `${now.getDate()} ${monthNames[now.getMonth()]}`;
-				const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-				// -----------------------------
-
-				let currentTime = workStartMin;
-
-				while (currentTime <= workEndMin - serviceDuration) {
-					const slotStart = currentTime;
-					const slotEnd = slotStart + serviceDuration;
-
-					if (slotEnd > workEndMin) break;
-
-					const hasOverlap = existingBookings.some(
-						(b) => slotStart < b.endMin && slotEnd > b.startMin,
-					);
-
-					if (!hasOverlap) {
-						const prevBooking = [...existingBookings]
-							.reverse()
-							.find((b) => b.endMin <= slotStart);
-
-						const nextBooking = existingBookings.find(
-							(b) => b.startMin >= slotEnd,
-						);
-
-						const gapBefore = prevBooking
-							? slotStart - prevBooking.endMin
-							: slotStart - workStartMin;
-
-						const gapAfter = nextBooking
-							? nextBooking.startMin - slotEnd
-							: workEndMin - slotEnd;
-
-						if (gapBefore !== 15 && gapAfter !== 15) {
-							possibleSlots.push(slotStart);
-						}
-					}
-
-					currentTime += gridInterval;
-				}
-
-				const finalSlots = possibleSlots
-					.sort((a, b) => a - b)
-					.filter((min) => {
-						// dacă ziua selectată este azi → eliminăm orele trecute
-						if (selectedDay === todayStr) {
-							return min > currentTotalMinutes + 5; // mic buffer
-						}
-						return true;
-					})
-					.map((min) => ({
+    const fetchSlots = async () => {
+      setTimeOptions(null)
+      const availableHours = (await getAvailableBookingSlots(selectedService, selectedDay))
+        .map((min) => ({
 						value: formatTime(min),
 						label: <p>{formatTime(min)}</p>,
 					}));
+      setTimeOptions(availableHours);
+    }
 
-				setTimeOptions(finalSlots);
-			} catch (error) {
-				console.error("Eroare la generarea sloturilor:", error);
-			}
-		};
+    (selectedDay && selectedService) && fetchSlots();
+  }, [selectedDay, selectedService]);
 
-		selectedDay && selectedService ? getTimeIntervals() : null;
-	}, [selectedDay, selectedService]);
+
+	 // When a date is selected, the current time selection is removed
+  useEffect(() => {
+    const removeTimeSelection = () => {
+      setTime("")
+    }
+
+    removeTimeSelection();
+  }, [selectedDay])
 
 	// <================================================================>
 
@@ -240,8 +107,8 @@ function BookingPage() {
 		if (!isControlKey && !/[0-9]/.test(e.key)) {
 			e.preventDefault();
 		}
-	}
-
+  }
+	
 	function handleDetails(e) {
 		setDetails(e.target.value);
 	}
@@ -332,7 +199,7 @@ function BookingPage() {
 					<input
 						name="phone-number"
 						maxLength={10}
-						placeholder="Număr de telefon"
+						placeholder="07XXXXXXX"
 						onChange={handlePhone}
 						onKeyDown={restrictLetter}
 						required={true}
@@ -390,7 +257,9 @@ function BookingPage() {
 				<img src={barber_img} className="bg-img" />
 
 				<div className={submitted ? "booking-confirm show" : "booking-confirm"}>
-					<h1>Programare realizată <br/>cu succes!</h1>
+          <div className="title">
+            <h1>PROGRAMARE <b style={{color: "var(--color_light_blue)", fontSize: "2rem", fontWeight: "700"}}>REALIZATĂ!</b></h1>
+          </div>
 					<b>Nume</b>
 					<p>{_name}</p>
 					<b>Telefon</b>
