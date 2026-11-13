@@ -3,15 +3,16 @@ import Navbar from "./Navbar"
 import { useEffect } from "react"
 import axios from "axios"
 import { useState } from "react"
-import TunsModern from "./assets/Tuns modern.jpeg"
-import TunsBarba from "./assets/Tuns Barbă.jpeg"
+import TunsModern from "./assets/Tuns_modern.jpeg"
+import TunsBarba from "./assets/Tuns_barbă.jpeg"
 import clock from "./assets/clock-icon.png"
 import price from "./assets/price-icon.png"
+import placeholder from "./assets/placeholder.png"
 
 function Services() {
 
   const [data, setData] = useState(null);
-  const backgrounds = [TunsModern, TunsBarba];
+  const backgrounds = [placeholder, TunsModern, TunsBarba, placeholder];
 
   useEffect(() => {
     const fetchData = async () => {
