@@ -30,8 +30,8 @@ function Services() {
       <Navbar />
       <div className="services-container">
         {data && data.map((service, index) => (
-          <div key={index} className="service-card">
-            <img src={backgrounds[index]}/>
+          <div key={index} data-id={index} className="service-card">
+            <img className="bg" src={backgrounds[index]}/>
             <h1 className="title">{service["name"]}</h1>
             <div className="info price">
                 <img src={price}/>

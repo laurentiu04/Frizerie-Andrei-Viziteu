@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import Home from "./Home";
 import Admin from "./Admin";
 import Services from "./Services"
+import Contact from "./contact";
 import AdminLogin from "./AdminLogin";
 import axios from "axios";
 import { useState } from "react";
@@ -17,6 +18,7 @@ function App() {
 				<Route path="/admin" element={<Admin />} />
 				<Route path="/admin-login" element={<AdminLogin />} />
 				<Route path="/servicii" element={<Services />} />
+				<Route path="/contact" element={<Contact />} />
 			</Routes>
 		</>
 	);
