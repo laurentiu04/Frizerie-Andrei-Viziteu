@@ -26,9 +26,13 @@ function Home() {
 					<b>STIL</b>
 					PERSONALIZAT
 				</h1>
-				<span className="reserveButton">
-					<Link to="/programare">PROGRAMEAZĂ-TE</Link>
+				<div className="reserveButton">
+				<span >
+					<Link className="main" to="/programare">PROGRAMEAZĂ-TE</Link>
 				</span>
+					<p>PE 1 DECEMBRIE PREȚURILE SE VOR ACTUALIZA!</p>
+					<Link className="second" to="/servicii">VEZI DETALII AICI</Link>
+				</div>
 			</div>
 		</>
 	);

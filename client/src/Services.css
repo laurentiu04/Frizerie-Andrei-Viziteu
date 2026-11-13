@@ -1,3 +1,111 @@
+.page-container {
+    padding: 0 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;      /* în loc de height: 100% */
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .services-container {
-    padding: 0.5rem 3rem;
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center; 
+    gap: 3rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.service-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min-content;
+    height: min-content;
+    box-sizing: border-box;
+    /* outline: 1px solid var(--color_dark_blue); */
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.service-card img {
+    width: 18rem;
+    border-radius: 1rem 1rem 0 0;
+    mask-image: linear-gradient(180deg,rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 95%);
+}
+
+.service-card .info {
+    display: inline-flex;
+    align-items: center;
+}
+
+.service-card .info p{
+    /* margin: 0; */
+    color: var(--color_light_blue);
+    font-weight: 400;
+    margin: 0;
+}
+
+.service-card .info img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    margin: -2px 0;
+}
+
+.service-card .title {
+    width: 100%;
+    height: min-content;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-weight: 500;
+    text-shadow: -2px 3px 1px rgb(50, 62, 115);
+    margin-top: -2.7rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 1020px) {
+.page-container {
+    overflow-y: scroll;
+}
+
+.service-card img {
+    /* width: 13rem; */
+    border-radius: 1rem 1rem 0 0;
+    mask-image: linear-gradient(180deg,rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 95%);
+}
+
+.service-card .info {
+    display: inline-flex;
+    align-items: center;
+}
+
+.service-card .info p{
+    /* margin: 0; */
+    color: var(--color_light_blue);
+    font-weight: 400;
+    margin: 0;
+}
+
+.service-card .info img {
+    width: 2rem;
+    height: 2rem;
+    object-fit: cover;
+    margin: -2px 0;
+}
+
+.service-card .title {
+    width: 100%;
+    height: min-content;
+    text-align: center;
+    text-transform: uppercase;
+    /* font-size: calc(12px + 0.7vh + 0.5vw); */
+    font-weight: 500;
+    text-shadow: -2px 3px 1px rgb(50, 62, 115);
+    margin-top: -2.7rem;
+    margin-bottom: 1rem;
+}
 }
